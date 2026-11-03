@@ -13,7 +13,12 @@ Voz/texto → borrador factura → gate determinista que bloquea todo número si
 pip install -r requirements.txt
 python src/verify.py
 python src/agent.py "factura a cliente X por 2450000 + IVA"
+PORT=8080 python src/server.py  # web demo: / (pagina), /health, POST /api/verify
 ```
+
+## Deploy (Coolify, VPS-3)
+`Dockerfile` stdlib-only. App publica desde este repo, build-pack `dockerfile`,
+puerto 8080, health-check `/health`, dominio `https://factura.kreo.lat`.
 
 ## Trazabilidad
 Cada cifra del borrador referencia `tool_call_id`. Sin `tool_call_id` no hay transmit. Ver `src/verify.py`.
