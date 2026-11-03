@@ -91,8 +91,8 @@ async function send(){
       `<span class="chip ok">${x.field}: ${x.display} · ${x.tool_call_id}</span>`).join("");
     document.getElementById("kGround").textContent = "100% (" + f.length + "/" + f.length + ")";
     document.getElementById("kSchema").textContent = "pendiente factura";
-    document.getElementById("roi").innerHTML = `<p><b>Ahorro estimado/mes:</b> ${fmt(d.savings_cents)} (estimación demo: −35% software + 70% de tu tiempo contable).</p>`;
-    bubble(`Perfecto. Detecté ${f.length} datos con trazabilidad total. Tu ahorro estimado es <b>${fmt(d.savings_cents)}/mes</b>. Ahora escribe tu primera factura, p. ej.: <i>factura a Distribuciones Bolivar por 2.450.000 + IVA</i>.`,"ai");
+    document.getElementById("roi").innerHTML = `<p><b>Ahorro estimado/mes:</b> ${fmt(d.savings_cents)} (estimación demo: −35% software + 70% de tu tiempo contable).</p><p class="mut">Planner: ${d.source}</p>`;
+    bubble(`Perfecto. Detecté ${f.length} datos con trazabilidad total. Tu ahorro estimado es <b>${fmt(d.savings_cents)}/mes</b>. Fuente del planner: <b>${d.source}</b>. Ahora escribe tu primera factura, p. ej.: <i>factura a Distribuciones Bolivar por 2.450.000 + IVA</i>.`,"ai");
     el.value = "factura a Distribuciones Bolivar por 2.450.000 + IVA por servicios contables"; step = 1; document.getElementById("sendBtn").textContent = "Generar factura";
   } else {
     const d = await timed("/api/draft",{text, with_tools: !sabotaged, fields_count: 0});
@@ -123,6 +123,93 @@ function renderInvoice(d){
 HOUR_VALUE_CENTS = 2_500_000
 
 
+EXTRACT_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "extract_business_fields",
+        "description": "Extrae datos del negocio desde lenguaje natural",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "company_name": {"type": ["string", "null"]},
+                "monthly_invoices": {"type": ["integer", "null"]},
+                "accounting_hours": {"type": ["integer", "null"]},
+                "current_software_cost_cents": {"type": ["integer", "null"]},
+            },
+        },
+    },
+}
+
+
+def meta_planner_fields(text: str) -> dict | None:
+    """Planner Muse Spark (Meta, cloud): tool-calling real con trazabilidad de la llamada.
+
+    Contrato idéntico al del ERP (config/neuron.php meta_spark): endpoint y key
+    por entorno, modelo muse-spark. Devuelve None si no hay credenciales o si
+    la llamada falla (auth/timeout) — el caller degrada al extractor local.
+    """
+    endpoint = os.getenv("META_SPARK_PLANNER_ENDPOINT", "")
+    api_key = os.getenv("META_SPARK_API_KEY", "")
+    model = os.getenv("META_SPARK_PLANNER_MODEL", "muse-spark")
+    if not endpoint or not api_key:
+        return None
+
+    import urllib.error
+    import urllib.request
+
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": "Extrae los datos del negocio con la herramienta. Nada de texto libre."},
+            {"role": "user", "content": text},
+        ],
+        "tools": [EXTRACT_TOOL],
+    }
+    request = urllib.request.Request(
+        endpoint,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=8) as response:
+            body = json.loads(response.read().decode("utf-8"))
+    except Exception:
+        return None
+
+    choices = body.get("choices") or []
+    if not choices:
+        return None
+    tool_calls = (choices[0].get("message") or {}).get("tool_calls") or []
+    if not tool_calls:
+        return None
+
+    call = tool_calls[0]
+    try:
+        args = json.loads((call.get("function") or {}).get("arguments") or "{}")
+    except json.JSONDecodeError:
+        return None
+
+    fields: list[dict] = []
+    software_cents = args.get("current_software_cost_cents") or 0
+    for name in ("company_name", "monthly_invoices", "accounting_hours", "current_software_cost_cents"):
+        value = args.get(name)
+        if value is None:
+            continue
+        display = fmt_pesos(value) if name == "current_software_cost_cents" and isinstance(value, int) else str(value)
+        fields.append({"field": name, "value": value, "display": display, "tool_call_id": call.get("id", "call_meta")})
+
+    hours = args.get("accounting_hours") or 0
+    savings = (software_cents * 35 // 100 if isinstance(software_cents, int) else 0) + hours * 70 * HOUR_VALUE_CENTS // 100
+    host = endpoint.split("/")[2] if "://" in endpoint else endpoint
+    return {
+        "fields": fields,
+        "savings_cents": savings,
+        "source": f"Muse Spark (Meta, cloud) · {model} · {host}",
+        "tool_call_id": call.get("id", "call_meta"),
+    }
+
+
 def extract_business(text: str) -> dict:
     """Extractor determinista (misma heurística del fallback del ERP) con trazabilidad por campo."""
     fields: list[dict] = []
@@ -149,7 +236,7 @@ def extract_business(text: str) -> dict:
         add("current_software_cost_cents", software_cents, software_cents)
 
     savings = software_cents * 35 // 100 + hours * 70 * HOUR_VALUE_CENTS // 100
-    return {"fields": fields, "savings_cents": savings}
+    return {"fields": fields, "savings_cents": savings, "source": "degradado local (sin key Meta)"}
 
 
 def fmt_pesos(cents: int) -> str:
@@ -228,7 +315,7 @@ class Handler(BaseHTTPRequestHandler):
             if req is None or not isinstance(req.get("text"), str):
                 self._send(400, b'{"error":"texto requerido"}')
                 return
-            result = extract_business(req["text"])
+            result = meta_planner_fields(req["text"]) or extract_business(req["text"])
             self._send(200, json.dumps(result).encode("utf-8"))
         elif self.path == "/api/verify":
             draft = self._json_body()
