@@ -1,6 +1,6 @@
-# Kreo Fiscal Shield — Meta Global AI Developer Hackathon (thin-slice público)
+# Kreo.One — ERP SaaS agéntico (módulo verificable: Kreo Fiscal Shield)
 
-Submit público aislado de kreo.one. El ERP privado (`kreo-one-skeleton`, GitHub PRIVATE) NO se expone aquí.
+Este repo público es el **módulo verificable y desplegable del ERP SaaS agéntico Kreo.One**: un wizard conversacional (Muse Spark) que propone, herramientas deterministas que calculan, y un verifier que decide antes de transmitir. El core del ERP (`kreo-one-skeleton`, GitHub PRIVATE) no se expone aquí; esto es su prueba pública viva.
 
 ## Qué demuestra
 Voz/texto → borrador factura → gate determinista que bloquea todo número sin `tool_call_id` → validación esquema DIAN → `transmit` solo si el verifier pasa.
