@@ -19,6 +19,10 @@
   {
    "at": "2026-11-04",
    "note": "P6 done: deploy vzgpp1ngxzzacua3zmxoulqv finished; prod /app 200, cierre --full OK."
+  },
+  {
+   "at": "2026-11-04",
+   "note": "Promocion /app->/ ejecutada y verificada en vivo; pendiente guardar."
   }
  ],
  "last_update": "2026-11-04",
@@ -53,6 +57,11 @@
    "id": "P6",
    "status": "done",
    "task": "Confirmar deploy Coolify de 20fe441: re-correr post-deploy-check --full contra factura.kreo.lat y curl /app"
+  },
+  {
+   "id": "P7",
+   "status": "pending",
+   "task": "Guardar (commit+push) promocion /app->/ y pedir deploy Coolify"
   }
  ],
  "sessions": {

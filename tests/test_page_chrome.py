@@ -1,14 +1,14 @@
-"""Chrome localizado de la pagina demo: idioma ES/EN autodetectado + identidad.
+"""Chrome de la UI promovida a /: frontend auditado 7/7 mismo-origen.
 
-La pagina servida en GET / debe traer:
-- toggle de idioma ES/EN con deteccion automatica (navigator.language)
-  y preferencia persistida (localStorage),
-- diccionario de textos en ambos idiomas,
-- favicon inline y marca SVG (cero archivos nuevos, stdlib-only).
+GET / (y /app) sirve src/static/app.html: dos textareas con fetch reales,
+suite tras <details>, empty state honesto ES/EN, cero CDN.
 """
 
 import sys
+import threading
 import unittest
+import urllib.request
+from http.server import ThreadingHTTPServer
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
@@ -16,36 +16,56 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 import server  # noqa: E402
 
 
-class LocalizedChromeTest(unittest.TestCase):
-    def test_page_ships_i18n_toggle_and_identity(self) -> None:
-        page = server.PAGE
-        self.assertIn('id="langBtn"', page, "falta el boton ES/EN")
-        self.assertIn("navigator.language", page, "falta autodeteccion de idioma")
-        self.assertIn("localStorage", page, "la preferencia de idioma debe persistir")
-        self.assertIn('"es"', page, "falta diccionario en espanol")
-        self.assertIn('"en"', page, "falta diccionario en ingles")
-        self.assertIn("Fiscal Shield", page, "falta la marca en ingles")
-        self.assertIn('rel="icon"', page, "falta el favicon")
-        self.assertIn("<svg", page, "falta la marca SVG inline")
+class PromotedRootTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.httpd = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
+        cls.base = f"http://127.0.0.1:{cls.httpd.server_port}"
+        cls.thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
+        cls.thread.start()
 
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.httpd.shutdown()
+        cls.httpd.server_close()
 
-class WizardChromeTest(unittest.TestCase):
-    def test_page_ships_guided_steps_semaforo_and_advanced(self) -> None:
-        page = server.PAGE
-        self.assertIn('id="stepLine"', page, "falta el indicador de paso")
-        self.assertIn('"step_of"', page, "falta la etiqueta Paso N de 3")
-        self.assertIn('id="verdict-light"', page, "falta la luz del semáforo")
-        self.assertIn("<details", page, "la suite debe ir tras un desplegable Avanzado")
-        self.assertIn('id="advanced"', page, "falta el bloque Avanzado")
-        self.assertIn('"go_word"', page, "falta la palabra llana del verde")
-        self.assertIn('"stop_word"', page, "falta la palabra llana del rojo")
-        self.assertIn(".primary{", page, "falta el estilo del botón principal")
-        self.assertIn('class="primary"', page, "el envío debe ser el botón principal")
-        self.assertIn("chatLog", page, "el historial debe re-renderizarse al cambiar idioma")
-        self.assertLess(page.index('id="stepLine"'), page.index('id="chat"'), "el paso va arriba del chat")
-        self.assertLess(page.index('id="advanced"'), page.index('onclick="sabotage()"'), "sabotaje vive en Avanzado")
-        self.assertIn("#059669", page, "falta la esmeralda §5")
-        self.assertIn("ui-monospace", page, "falta la pila mono del sistema")
+    def _get(self, path):
+        with urllib.request.urlopen(self.base + path, timeout=5) as r:
+            return r.status, r.headers.get("Content-Type", ""), r.read().decode("utf-8")
+
+    def test_root_y_app_sirven_los_mismos_bytes(self) -> None:
+        s1, ct1, root = self._get("/")
+        s2, _, app = self._get("/app")
+        self.assertEqual((s1, s2), (200, 200))
+        self.assertIn("text/html", ct1)
+        self.assertEqual(root, app, "/ y /app deben servir el frontend auditado")
+        self.assertEqual(root.encode("utf-8"), server.APP_PATH.read_bytes())
+
+    def test_marcas_del_frontend_auditado(self) -> None:
+        _, _, page = self._get("/")
+        for marker in ('id="txt-extract"', 'id="txt-draft"', 'id="chips"',
+                       'id="inv"', 'id="verdict"', 'id="suite-details"',
+                       "/api/extract", "/api/draft", "/api/verify",
+                       "tool_call_id", "performance.now"):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, page, f"falta marca {marker}")
+
+    def test_bilingue_real_sin_fosiles(self) -> None:
+        _, _, page = self._get("/")
+        self.assertIn("Sin datos", page, "falta empty state ES")
+        self.assertIn("No data yet", page, "falta empty state EN")
+        self.assertIn("Extraer datos trazables", page, "falta ES")
+        self.assertIn("Extract traceable data", page, "falta EN")
+        self.assertIn("Oculto (ejecuta la suite para auditar)", page,
+                      "la suite arranca oculta")
+
+    def test_zero_deps(self) -> None:
+        _, _, page = self._get("/")
+        low = page.lower()
+        self.assertNotIn("tailwind", low, "nada de CDN Tailwind")
+        self.assertNotIn("googleapis", low, "nada de Google Fonts")
+        self.assertNotIn("<link", low, "cero links externos")
+        self.assertIn("<script>", page, "el JS va inline")
 
 
 if __name__ == "__main__":
