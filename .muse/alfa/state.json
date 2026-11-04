@@ -47,6 +47,14 @@
   {
    "at": "2026-11-04",
    "note": "Marco normativo ejecutado y verificado en vivo; pendiente guardar."
+  },
+  {
+   "at": "2026-11-04",
+   "note": "Marco normativo guardado+desplegado: e0a765f, deploy yfeimov1ncunv1rom8ayphqk finished, prod OK."
+  },
+  {
+   "at": "2026-11-04",
+   "note": "Contrato LLM ejecutado y verificado; pendiente guardar."
   }
  ],
  "last_update": "2026-11-04",
@@ -104,8 +112,13 @@
   },
   {
    "id": "P11",
-   "status": "pending",
+   "status": "done",
    "task": "Guardar (commit+push) marco normativo + deploy si se pide"
+  },
+  {
+   "id": "P12",
+   "status": "pending",
+   "task": "Guardar (commit+push) contrato LLM + deploy si se pide"
   }
  ],
  "sessions": {

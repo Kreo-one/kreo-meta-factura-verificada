@@ -25,7 +25,22 @@ Voice/text → draft invoice → deterministic gate blocking every number withou
 
 ## Architecture
 
-`Muse Spark 1.3 (planner, OpenAI-compatible, tool-calling) → deterministic tools → verifier → transmit only on PASS verdict`. No key? Honest local mock (labeled on screen). Zero-float: `int` cents, no `float` for money.
+`Muse Spark 1.3 (planner, OpenAI-compatible, tool-calling) → deterministic tools → verifier → transmit only on PASS verdict`. No key? Honest local mock (labeled on screen). Zero-float: `int` cents, no `float` for money. Full contract: [docs/LLM_CONTRACT.md](docs/LLM_CONTRACT.md).
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant W as POST /api/extract
+    participant M as Muse Spark 1.3
+    participant T as extract_business_fields
+    participant G as Verifier gate
+    U->>W: free text
+    W->>M: system + user + tools
+    M->>T: tool_call with id
+    T-->>W: fields + tool_call_id
+    W->>G: amounts + dian_schema_ok
+    G-->>U: transmit + veredicto
+```
 
 ## Run locally
 

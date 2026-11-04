@@ -13,7 +13,7 @@ def main(prompt: str) -> int:
     }
     ok, msg = verify_draft(draft)
     print(f"veredicto: {msg}")
-    print(f"transmit: {'SI' if ok else 'NO'} (META_MODEL_API={'configurada' if os.getenv('META_MODEL_API_KEY') else 'mock local'})")
+    print(f"transmit: {'SI' if ok else 'NO'} (META_SPARK={'configurada' if os.getenv('META_SPARK_API_KEY') else 'mock local'})")
     return 0 if ok else 1
 
 
