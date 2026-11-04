@@ -8,7 +8,7 @@
 
 **▶ Try the live demo: [https://factura.kreo.lat](https://factura.kreo.lat)** — type your company, generate an invoice, run the 20-case suite in your browser.
 
-This public repo is the **verifiable, deployable module of the Kreo.One agentic ERP SaaS**: a conversational wizard (Muse Spark) that proposes, deterministic tools that compute, and a verifier that decides before transmitting. The ERP core (`kreo-one-skeleton`, PRIVATE GitHub) is not exposed here; this is its living public proof.
+This public repo is the **verifiable, deployable module of the Kreo.One agentic ERP SaaS**: a conversational wizard (Muse Spark) that proposes, deterministic tools that compute, and a verifier that decides before transmitting. The ERP core (`kreo-one-skeleton`, PRIVATE GitHub) is not exposed here; this is its living public proof. Built for **Colombia**: DIAN electronic invoicing (19% VAT, COP cents, pre-transmit validation).
 
 ```mermaid
 flowchart LR
@@ -59,8 +59,14 @@ Every draft figure references a `tool_call_id`. No `tool_call_id`, no transmit. 
 ## KPIs (SaaS-S, verifiable)
 
 - KPI-1: 100% figures with `tool_call_id` (0 written by the model).
-- KPI-2: 100% DIAN schema pass before transmitting.
+- KPI-2: 100% DIAN Colombia schema pass before transmitting.
 - KPI-3: p95 ≈0.3–0.5s text-to-draft, measured in production (server-side 20/20 suite via `scripts/post-deploy-check.py --full`).
+
+## Legal framework (reference, not compliance)
+
+Design reference: Decree 2242/2015 (e-invoicing system), Decree 358/2020 (arts. 616-1 ff. of the Tax Code), DIAN Resolutions 042/2020 (sales e-invoice + technical annex) and 165/2023 (annex v1.9, CUFE/CUDE, UBL 2.1). Per-figure traceability (`tool_call_id`) mirrors the CUFE/CUDE philosophy; it is an analogue, not an equivalent.
+
+*This demo does not transmit to DIAN nor generate tax-valid documents. Production requires DIAN habilitation, an invoicing resolution, a digital signature and an authorized technology provider. Validate with a tax accountant/attorney.*
 
 ## License
 
@@ -70,7 +76,7 @@ MIT — this slice only. The kreo.one core stays private.
 
 # Kreo.One — ERP SaaS agéntico (módulo verificable: Kreo Fiscal Shield)
 
-Este repo público es el **módulo verificable y desplegable del ERP SaaS agéntico Kreo.One**: un wizard conversacional (Muse Spark) que propone, herramientas deterministas que calculan, y un verifier que decide antes de transmitir. El core del ERP (`kreo-one-skeleton`, GitHub PRIVATE) no se expone aquí; esto es su prueba pública viva.
+Este repo público es el **módulo verificable y desplegable del ERP SaaS agéntico Kreo.One**: un wizard conversacional (Muse Spark) que propone, herramientas deterministas que calculan, y un verifier que decide antes de transmitir. El core del ERP (`kreo-one-skeleton`, GitHub PRIVATE) no se expone aquí; esto es su prueba pública viva. Hecho para **Colombia**: factura electrónica DIAN (IVA 19%, centavos COP, validación previa a transmitir).
 
 ## Qué demuestra
 
@@ -112,8 +118,14 @@ Cada cifra del borrador referencia `tool_call_id`. Sin `tool_call_id` no hay tra
 ## KPIs (SaaS-S, verificables)
 
 - KPI-1: 100% cifras con `tool_call_id` (0 escritas por el modelo).
-- KPI-2: 100% schema DIAN pass antes de transmitir.
+- KPI-2: 100% schema DIAN Colombia pass antes de transmitir.
 - KPI-3: p95 ≈0.3–0.5s texto a borrador, medido en producción (suite server-side 20/20 vía `scripts/post-deploy-check.py --full`).
+
+## Marco normativo (referencia, no cumplimiento)
+
+Referencia de diseño: Decreto 2242/2015 (sistema de factura electrónica), Decreto 358/2020 (arts. 616-1 y ss. del E.T.), Resoluciones DIAN 042/2020 (factura electrónica de venta + anexo técnico) y 165/2023 (anexo v1.9, CUFE/CUDE, UBL 2.1). La trazabilidad por cifra (`tool_call_id`) refleja la filosofía CUFE/CUDE; es un análogo, no un equivalente.
+
+*Esta demo no transmite a la DIAN ni genera documentos con validez tributaria. Producción requiere habilitación DIAN, resolución de facturación, firma digital y proveedor tecnológico autorizado. Validar con contador/abogado tributarista.*
 
 ## Licencia
 

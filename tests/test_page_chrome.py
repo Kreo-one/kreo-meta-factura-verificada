@@ -48,7 +48,8 @@ class PromotedRootTest(unittest.TestCase):
                        "/api/extract", "/api/draft", "/api/verify",
                        "tool_call_id", "performance.now",
                        'rel="icon"', "<svg", "localStorage", "navigator.language",
-                       "documentElement.lang"):
+                       "documentElement.lang", "Colombia",
+                       "legal-note", "2242"):
             with self.subTest(marker=marker):
                 self.assertIn(marker, page, f"falta marca {marker}")
 

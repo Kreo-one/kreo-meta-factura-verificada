@@ -689,6 +689,7 @@
 <p class="subtitle-banner" id="hdr-sub">
       Wizard del ERP SaaS agéntico Kreo.One (planner Muse Spark en vivo; sin key, mock local honesto — el gate no cambia). Cada cifra lleva su <code>tool_call_id</code>: sin trazabilidad, no hay transmit.
     </p>
+<p class="mut" id="legal-note" style="font-size:.75rem">Marco: Decretos 2242/2015 y 358/2020 · Res. DIAN 042/2020 y 165/2023 · Demo sin transmisión real.</p>
 </header>
 <!-- Main Grid -->
 <div class="grid-main">
@@ -791,7 +792,7 @@
 <span id="lbl-grounding">Grounding:</span> <span class="kpi" id="kpi-grounding">—</span>
 </div>
 <div class="telemetry-item">
-<span id="lbl-dian">Schema DIAN:</span> <span class="kpi" id="kpi-dian">—</span>
+<span id="lbl-dian">DIAN Colombia:</span> <span class="kpi" id="kpi-dian">—</span>
 </div>
 <div class="telemetry-item">
 <span id="lbl-p95">p95 sesión:</span> <span class="kpi" id="kpi-p95">—</span>
@@ -838,6 +839,7 @@
       suiteKpiSummary: "Oculto (ejecuta la suite para auditar)",
       suiteNotRun: "Suite no ejecutada en esta sesión.",
       gateReady: "Deterministic Verification Gate: READY",
+      legal: "Marco: Decretos 2242/2015 y 358/2020 · Res. DIAN 042/2020 y 165/2023 · Demo sin transmisión real.",
       errExtractText: "Texto requerido",
       transYes: "TRANSMITIR: SÍ — PASS",
       transNo: "TRANSMITIR: NO — BLOQUEADO",
@@ -880,6 +882,7 @@
       suiteKpiSummary: "Hidden (run suite to audit)",
       suiteNotRun: "Suite not executed in this session.",
       gateReady: "Deterministic Verification Gate: READY",
+      legal: "Framework: Decrees 2242/2015 and 358/2020 · DIAN Res. 042/2020 and 165/2023 · Demo with no real transmit.",
       errExtractText: "Text required",
       transYes: "TRANSMIT: YES — PASS",
       transNo: "TRANSMIT: NO — BLOCKED",
@@ -926,6 +929,7 @@
     document.getElementById('title-invoice').textContent = t.titleInvoice;
     document.getElementById('title-suite-summary').textContent = t.titleSuiteSummary;
     document.getElementById('lbl-gate-status').textContent = t.gateReady;
+    document.getElementById('legal-note').textContent = t.legal;
 
     // Reactive re-render of cached state
     if (state.extractedData) {

@@ -1,4 +1,7 @@
-"""Kreo Fiscal Shield deterministic gate: blocks numbers without tool-result."""
+"""Kreo Fiscal Shield deterministic gate: blocks numbers without tool-result.
+
+Numeric rules modeled on DIAN (Colombia) electronic invoicing: int cents,
+zero floats, schema validated before transmit."""
 from __future__ import annotations
 
 

@@ -8,5 +8,7 @@
 > • **Planner:** Construye el borrador únicamente mediante llamadas a herramientas estructuradas (incluye fallback determinista local si la API externa degrada; la página lo etiqueta).
 > • **Verifier:** Filtro determinista que bloquea en vivo cualquier cifra sin `tool_call_id` trazable y valida la estructura contra las reglas numéricas DIAN en enteros (centavos, cero flotantes) antes de renderizar.
 > • **Demo en Vivo:** Wizard conversacional → Factura renderizada en tiempo real → Suite de pruebas integrada en frontend (20 casos deterministas con pass-rate y p95 medido: ≈0.3–0.5s en producción).
+> • **Ámbito:** Factura electrónica DIAN (Colombia): IVA 19%, centavos COP, validación previa a transmitir.
+> • **Marco:** Decretos 2242/2015 y 358/2020; Res. DIAN 042/2020 y 165/2023 (referencia de diseño; demo sin transmisión real ni validez tributaria).
 
 Notas para el humano (no pegar): no mencionar Llama 3, Baseten, Workers, SHA-256 ni XML/XSD (sin evidencia en este repo); no dar puntajes auto-asignados; p95 citado es el medido por `scripts/post-deploy-check.py --full` contra producción.

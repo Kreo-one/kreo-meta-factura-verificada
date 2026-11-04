@@ -39,6 +39,14 @@
   {
    "at": "2026-11-04",
    "note": "EN deployado: 7902fd1, deploy 3unzgqxas67qapzhfx8htwi1 finished, prod OK."
+  },
+  {
+   "at": "2026-11-04",
+   "note": "Anclaje Colombia ejecutado y verificado en vivo; pendiente guardar."
+  },
+  {
+   "at": "2026-11-04",
+   "note": "Marco normativo ejecutado y verificado en vivo; pendiente guardar."
   }
  ],
  "last_update": "2026-11-04",
@@ -88,6 +96,16 @@
    "id": "P9",
    "status": "done",
    "task": "Guardar (commit+push) pase EN jueces + deploy si se pide; item 5 (descripcion GitHub) lo hace el usuario"
+  },
+  {
+   "id": "P10",
+   "status": "pending",
+   "task": "Guardar (commit+push) anclaje DIAN Colombia + deploy si se pide"
+  },
+  {
+   "id": "P11",
+   "status": "pending",
+   "task": "Guardar (commit+push) marco normativo + deploy si se pide"
   }
  ],
  "sessions": {
