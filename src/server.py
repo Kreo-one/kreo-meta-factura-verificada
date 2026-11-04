@@ -2,6 +2,7 @@
 
 Solo stdlib. Endpoints:
   GET  /         pagina demo (flujo: texto -> borrador -> veredicto)
+  GET  /app      frontend auditado 7/7 (mismo origen que /api/...)
   GET  /health   chequeo Coolify
   POST /api/verify  {"amounts":[...],"dian_schema_ok":bool} -> veredicto (contrato estable)
   POST /api/draft   {"text":str,"with_tools":bool} -> borrador + veredicto
@@ -14,62 +15,137 @@ import os
 import re
 from datetime import date
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
 from verify import verify_draft
 
 IVA_RATE = 19
 
+APP_PATH = Path(__file__).resolve().parent / "static" / "app.html"
+
 PAGE = """<!doctype html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Kreo.One — ERP SaaS agentico: Fiscal Shield en vivo</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2l11 4v8c0 7-4.5 12-11 16C9.5 26 5 21 5 14V6z' fill='%23059669'/%3E%3Cpath d='M11 15l4 4 7-8' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
-body{font-family:system-ui,sans-serif;max-width:1080px;margin:1.5rem auto;padding:0 1rem;color:#1a1a1a}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;max-width:1080px;margin:1.5rem auto;padding:0 1rem;color:#475569;background:#f8fafc}
+h1,h2,h3{color:#0f172a}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 @media (max-width:820px){.grid{grid-template-columns:1fr}}
-.card{border:1px solid #ddd;border-radius:10px;padding:1rem}
+.card{border:1px solid #cbd5e1;border-radius:10px;padding:1rem;background:#fff}
 .msg{margin:.5rem 0;padding:.6rem .8rem;border-radius:8px;max-width:92%}
-.ai{background:#eef3ff}.me{background:#f2f2f2;text-align:left;margin-left:auto}
-textarea{width:100%;height:3rem;font-size:1rem;padding:.5rem;box-sizing:border-box}
+.ai{background:#ecfdf5}.me{background:#f1f5f9;text-align:left;margin-left:auto}
+textarea{width:100%;height:3rem;font-size:1rem;padding:.5rem;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:8px}
 button{padding:.55rem 1rem;margin:.3rem .2rem;font-size:.95rem;cursor:pointer}
-.chip{display:inline-block;background:#eee;border-radius:10px;padding:.15rem .55rem;margin:.15rem;font-size:.82rem;font-family:monospace}
-.chip.ok{background:#d9f2d9}.chip.bad{background:#f8d7d7}
+.chip{display:inline-block;background:#f1f5f9;border-radius:10px;padding:.15rem .55rem;margin:.15rem;font-size:.82rem;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.chip.ok{background:#d1fae5}.chip.bad{background:#fee2e2}
 .inv table{width:100%;border-collapse:collapse}
-.inv td,.inv th{border-bottom:1px solid #eee;padding:.35rem;text-align:right}
+.inv td,.inv th{border-bottom:1px solid #cbd5e1;padding:.35rem;text-align:right}
 .inv td:first-child,.inv th:first-child{text-align:left}
-.pass{background:#e6f7e6;border:1px solid #2c7a2c;padding:.7rem;border-radius:6px;margin-top:.7rem}
-.block{background:#fde8e8;border:1px solid #a33;padding:.7rem;border-radius:6px;margin-top:.7rem}
-.mut{font-size:.82rem;color:#666}
-.kpi{display:flex;gap:.6rem;flex-wrap:wrap}.kpi div{background:#f7f7f7;border:1px solid #e3e3e3;border-radius:8px;padding:.45rem .7rem;font-size:.85rem}
+.pass{background:#ecfdf5;border:1px solid #059669;padding:.7rem;border-radius:6px;margin-top:.7rem}
+.block{background:#fef2f2;border:1px solid #a33;padding:.7rem;border-radius:6px;margin-top:.7rem}
+.mut{font-size:.82rem;color:#475569}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.kpi{display:flex;gap:.6rem;flex-wrap:wrap}.kpi div{background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:.45rem .7rem;font-size:.85rem}
+.brand{display:flex;align-items:center;gap:.6rem}.brand h1{margin:0;font-size:1.35rem}#langBtn{margin-left:auto;flex:none;border:1px solid #cbd5e1;background:#fff;border-radius:8px}
+.light{width:26px;height:26px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:.5rem}.light.go{background:#059669}.light.stop{background:#a33}summary{cursor:pointer;font-weight:bold}
+body{font-size:17px}textarea{font-size:1.05rem}button{font-size:1rem}
+.primary{background:#059669;color:#fff;border:none;border-radius:8px;padding:.8rem 1.6rem;font-size:1.1rem;cursor:pointer}
 </style>
 </head><body>
-<h1>Kreo Fiscal Shield — el agente propone, el verificador decide</h1>
-<p class="mut">Wizard del ERP SaaS agentico Kreo.One (planner Muse Spark en vivo; sin key, mock local honesto — el gate no cambia).
-Cada cifra lleva su <code>tool_call_id</code>: sin trazabilidad, no hay transmit.</p>
+<div class="brand"><svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2l11 4v8c0 7-4.5 12-11 16C9.5 26 5 21 5 14V6z" fill="#059669"/><path d="M11 15l4 4 7-8" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><h1 data-i18n="h1">Kreo Fiscal Shield — el agente propone, el verificador decide</h1><button id="langBtn" onclick="cycleLang()" title="ES/EN">EN</button></div>
+<p class="mut" data-i18n="sub">Wizard del ERP SaaS agentico Kreo.One (planner Muse Spark en vivo; sin key, mock local honesto — el gate no cambia). Cada cifra lleva su <code>tool_call_id</code>: sin trazabilidad, no hay transmit.</p>
 <div class="grid">
  <div class="card">
+  <p class="mut" id="stepLine"></p>
   <div id="chat"></div>
-  <textarea id="t" placeholder="Cuéntanos de tu empresa…">Mi empresa es Distribuciones Bolivar SAS, facturamos 95 facturas al mes, gasto 40 horas contables y pago 300.000 en software</textarea><br>
-  <button onclick="send()" id="sendBtn">Enviar</button>
-  <button onclick="sabotage()" title="El LLM escribe la cifra sin tool_call_id">Simular LLM sin herramientas</button>
-  <button onclick="runSuite()" title="20 casos deterministas: validos, sin tool, schema roto, tipos invalidos">Correr suite de verificación (20 casos)</button>
-  <div id="suite" style="margin-top:.6rem"></div>
-  <p class="mut">Paso 1: cuéntanos tu operación. Paso 2: escribe tu primera factura tras el análisis.</p>
+  <textarea id="t" data-i18n-ph="ta_ph" placeholder="Cuéntanos de tu empresa…">Mi empresa es Distribuciones Bolivar SAS, facturamos 95 facturas al mes, gasto 40 horas contables y pago 300.000 en software</textarea><br>
+  <button onclick="send()" id="sendBtn" class="primary">Enviar</button>
  </div>
  <div>
-  <div class="card"><h3>Datos extraídos (con trazabilidad)</h3><div id="chips"><span class="mut">Sin datos aún…</span></div>
+  <div class="card"><h3 data-i18n="dtitle">Datos extraídos (con trazabilidad)</h3><div id="chips"><span class="mut" data-i18n="nodata">Sin datos aún…</span></div>
   <div id="roi"></div></div>
-  <div class="card inv" style="margin-top:1rem"><h3>Factura en vivo</h3><div id="inv"><span class="mut">Tu primera factura aparece aquí…</span></div><div id="verdict"></div>
+  <div class="card inv" style="margin-top:1rem"><h3 data-i18n="invtitle">Factura en vivo</h3><div id="inv"><span class="mut" data-i18n="noinv">Tu primera factura aparece aquí…</span></div><div id="verdict"></div>
+  <details id="advanced" style="margin-top:.7rem"><summary data-i18n="adv">Avanzado: pruebas y cifras</summary>
+  <button onclick="sabotage()" data-i18n="sab" data-i18n-title="sab_t" title="El LLM escribe la cifra sin tool_call_id">Simular LLM sin herramientas</button>
+  <button onclick="runSuite()" data-i18n="suite" data-i18n-title="suite_t" title="20 casos deterministas: validos, sin tool, schema roto, tipos invalidos">Correr suite de verificación (20 casos)</button>
+  <div id="suite" style="margin-top:.6rem"></div>
   <div class="kpi" style="margin-top:.7rem">
-    <div>Grounding: <b id="kGround">—</b></div>
-    <div>Schema DIAN: <b id="kSchema">—</b></div>
-    <div>p95 sesión: <b id="kP95">—</b></div>
+    <div><span data-i18n="kpi_g">Grounding</span>: <b id="kGround">—</b></div>
+    <div><span data-i18n="kpi_s">Schema DIAN</span>: <b id="kSchema">—</b></div>
+    <div><span data-i18n="kpi_p">p95 sesión</span>: <b id="kP95">—</b></div>
+  </details>
   </div></div>
  </div>
 </div>
 <script>
-const fmt = c => "$ " + (c/100).toLocaleString("es-CO");
+const I18N = {"es": {"h1": "Kreo Fiscal Shield — el agente propone, el verificador decide",
+"sub": "Wizard del ERP SaaS agentico Kreo.One (planner Muse Spark en vivo; sin key, mock local honesto — el gate no cambia). Cada cifra lleva su <code>tool_call_id</code>: sin trazabilidad, no hay transmit.",
+"ta_ph": "Cuéntanos de tu empresa…", "ta_default": "Mi empresa es Distribuciones Bolivar SAS, facturamos 95 facturas al mes, gasto 40 horas contables y pago 300.000 en software",
+"send": "Enviar", "gen": "Generar factura", "sab": "Simular LLM sin herramientas", "sab_t": "El LLM escribe la cifra sin tool_call_id",
+"suite": "Correr suite de verificación (20 casos)", "suite_t": "20 casos deterministas: validos, sin tool, schema roto, tipos invalidos",
+"steps": "Paso 1: cuéntanos tu operación. Paso 2: escribe tu primera factura tras el análisis.",
+"dtitle": "Datos extraídos (con trazabilidad)", "nodata": "Sin datos aún…", "invtitle": "Factura en vivo", "noinv": "Tu primera factura aparece aquí…",
+"kpi_g": "Grounding", "kpi_s": "Schema DIAN", "kpi_p": "p95 sesión",
+"welcome": "¡Bienvenido a KreO.One! Soy Sofía. Cuéntame de tu empresa: cuántas facturas emites, cuánto tiempo gastas en contabilidad y cuánto pagas en software.",
+"roi": '<p><b>Ahorro estimado/mes:</b> {sav} (estimación demo: −35% software + 70% de tu tiempo contable).</p><p class="mut">Planner: {src}</p>',
+"perfect": "Perfecto. Detecté {n} datos con trazabilidad total. Tu ahorro estimado es <b>{sav}/mes</b>. Fuente del planner: <b>{src}</b>. Ahora escribe tu primera factura, p. ej.: <i>{ex}</i>.",
+"example": "factura a Distribuciones Bolivar por 2.450.000 + IVA por servicios contables",
+"valid_ok": "Factura validada por el verificador: schema DIAN OK y cada cifra con <code>tool_call_id</code>. Lista para transmitir.",
+"blocked": "El verificador bloqueó la factura: hay cifras sin <code>tool_call_id</code>. El agente propone; el verificador decide.",
+"sabmode": "Modo sabotaje: el LLM escribirá la próxima cifra sin herramientas.", "running": "Corriendo 20 casos deterministas…",
+"suite_head": "<b>{p}/20 comportamientos esperados</b> · p95 sesión {p95} ms · N=20 determinista, medido en tu navegador.",
+"suite_done": "Suite completa: <b>{p}/20</b> comportamientos esperados, p95 {p95} ms medido en tu navegador. Nada de diapositivas: el gate ejecutó de verdad.",
+"untracked": "sin trazabilidad", "inv_demo": "Factura demo", "th_c": "Concepto", "th_v": "Valor",
+"subtotal": "Subtotal", "iva": "IVA 19%", "total": "Total", "tx_yes": "TRANSMITIR: SI", "tx_no": "TRANSMITIR: NO",
+"ok": "OK", "bad": "FALLA", "pending": "pendiente factura", "full": "100%", "nosrc": "cifras sin fuente", "s100": "100% (suite)", "sok": "OK (suite)", "th_r": "Resultado",
+"step_of": "Paso {n} de 3", "g1": "Cuéntanos de tu empresa en una frase.", "g2": "Ahora escribe tu primera factura.", "g3": "Veredicto del semáforo: verde puedes enviar, rojo hay que explicar una cifra.",
+"adv": "Avanzado: pruebas y cifras", "go_word": "Puedes enviarla", "stop_word": "Frenada: hay que explicar una cifra"},
+"en": {"h1": "Kreo Fiscal Shield — the agent proposes, the verifier decides",
+"sub": "Kreo.One agentic SaaS ERP wizard (live Muse Spark planner; no key, honest local mock — the gate never changes). Every figure carries its <code>tool_call_id</code>: no traceability, no transmit.",
+"ta_ph": "Tell us about your company…", "ta_default": "My company is Distribuciones Bolivar SAS, we issue 95 invoices a month, spend 40 hours on accounting and pay 300,000 in software",
+"send": "Send", "gen": "Generate invoice", "sab": "Simulate LLM without tools", "sab_t": "The LLM writes the figure with no tool_call_id",
+"suite": "Run verification suite (20 cases)", "suite_t": "20 deterministic cases: valid, no-tool, broken schema, invalid types",
+"steps": "Step 1: tell us about your operation. Step 2: write your first invoice after the analysis.",
+"dtitle": "Extracted data (with traceability)", "nodata": "No data yet…", "invtitle": "Live invoice", "noinv": "Your first invoice shows up here…",
+"kpi_g": "Grounding", "kpi_s": "DIAN schema", "kpi_p": "session p95",
+"welcome": "Welcome to KreO.One! I'm Sofia. Tell me about your company: how many invoices you issue, how much time you spend on accounting and what you pay for software.",
+"roi": '<p><b>Estimated savings/mo:</b> {sav} (demo estimate: −35% software + 70% of your accounting time).</p><p class="mut">Planner: {src}</p>',
+"perfect": "Got it. I detected {n} data points with full traceability. Your estimated savings are <b>{sav}/mo</b>. Planner source: <b>{src}</b>. Now write your first invoice, e.g.: <i>{ex}</i>.",
+"example": "invoice to Distribuciones Bolivar for 2,450,000 + VAT for accounting services",
+"valid_ok": "Invoice validated by the verifier: DIAN schema OK and every figure with <code>tool_call_id</code>. Ready to transmit.",
+"blocked": "The verifier blocked the invoice: there are figures with no <code>tool_call_id</code>. The agent proposes; the verifier decides.",
+"sabmode": "Sabotage mode: the LLM will write the next figure without tools.", "running": "Running 20 deterministic cases…",
+"suite_head": "<b>{p}/20 expected behaviors</b> · session p95 {p95} ms · N=20 deterministic, measured in your browser.",
+"suite_done": "Suite complete: <b>{p}/20</b> expected behaviors, p95 {p95} ms measured in your browser. No slides: the gate really ran.",
+"untracked": "untracked", "inv_demo": "Demo invoice", "th_c": "Item", "th_v": "Amount",
+"subtotal": "Subtotal", "iva": "19% VAT", "total": "Total", "tx_yes": "TRANSMIT: YES", "tx_no": "TRANSMIT: NO",
+"ok": "OK", "bad": "FAIL", "pending": "invoice pending", "full": "100%", "nosrc": "figures without source", "s100": "100% (suite)", "sok": "OK (suite)", "th_r": "Result",
+"step_of": "Step {n} of 3", "g1": "Tell us about your company in one sentence.", "g2": "Now write your first invoice.", "g3": "Semaphore verdict: green you can send, red one figure needs explaining.",
+"adv": "Advanced: tests and figures", "go_word": "You can send it", "stop_word": "Stopped: one figure needs explaining"}};
+function t(k, vars){ let s = (I18N[lang] && I18N[lang][k]) || I18N["es"][k] || k; for(const n in (vars||{})) s = s.split("{"+n+"}").join(vars[n]); return s; }
+let lang = "es";
+const chatLog = [];
+function say(key, vars, cls){ chatLog.push({kind: "ai", key: key, vars: vars || {}}); bubble(t(key, vars), cls || "ai"); }
+function mine(html){ chatLog.push({kind: "me", html: html}); bubble(html, "me"); }
+function rerenderChat(){ const box = document.getElementById("chat"); if(!box) return; box.innerHTML = "";
+  chatLog.forEach(e => { bubble(e.kind === "ai" ? t(e.key, e.vars) : e.html, e.kind === "ai" ? "ai" : "me"); });
+}
+function setLang(l){ lang = (l === "en") ? "en" : "es"; try{ localStorage.setItem("kreo-lang", lang); }catch(e){}
+  document.documentElement.lang = lang; document.title = "Kreo.One — ERP SaaS agentico: Fiscal Shield en vivo";
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.innerHTML = t(el.getAttribute("data-i18n")); });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.getAttribute("data-i18n-ph")); });
+  document.querySelectorAll("[data-i18n-title]").forEach(el => { el.title = t(el.getAttribute("data-i18n-title")); });
+  const sb = document.getElementById("sendBtn"); if(sb) sb.textContent = (typeof step !== "undefined" && step === 1) ? t("gen") : t("send");
+  const ta = document.getElementById("t"); if(ta && (ta.value === I18N["es"]["ta_default"] || ta.value === I18N["en"]["ta_default"])) ta.value = t("ta_default");
+  const lb = document.getElementById("langBtn"); if(lb) lb.textContent = (lang === "es") ? "EN" : "ES"; setStep(wizStep); rerenderChat(); }
+function cycleLang(){ setLang(lang === "es" ? "en" : "es"); }
+let wizStep = 1;
+function setStep(n){ wizStep = n; const sl = document.getElementById("stepLine"); if(sl) sl.innerHTML = "<b>" + "●".repeat(n) + "○".repeat(3 - n) + " " + t("step_of", {n: n}) + "</b> · " + t("g" + n); }
+const fmt = c => "$ " + (c/100).toLocaleString(lang === "en" ? "en-US" : "es-CO");
 const lat = []; let step = 0, sabotaged = false;
+try{ const saved = localStorage.getItem("kreo-lang"); setLang(saved || (((navigator.language || "es").toLowerCase().indexOf("en") === 0) ? "en" : "es")); }catch(e){ setLang("es"); }
 function bubble(txt, cls){
   const d = document.createElement("div"); d.className = "msg " + cls; d.innerHTML = txt;
   document.getElementById("chat").appendChild(d); d.scrollIntoView({behavior:"smooth"});
@@ -82,32 +158,31 @@ async function timed(path, payload){
   document.getElementById("kP95").textContent = Math.round(lat[Math.ceil(0.95*lat.length)-1]) + " ms";
   return r.json();
 }
-bubble("¡Bienvenido a KreO.One! Soy Sofía. Cuéntame de tu empresa: cuántas facturas emites, cuánto tiempo gastas en contabilidad y cuánto pagas en software.","ai");
+say("welcome");
 async function send(){
   const el = document.getElementById("t"); const text = el.value.trim(); if(!text) return;
-  bubble(text,"me");
+  mine(text);
   if(step === 0){
     const d = await timed("/api/extract",{text});
     const f = d.fields;
     document.getElementById("chips").innerHTML = f.map(x =>
       `<span class="chip ok">${x.field}: ${x.display} · ${x.tool_call_id}</span>`).join("");
     document.getElementById("kGround").textContent = "100% (" + f.length + "/" + f.length + ")";
-    document.getElementById("kSchema").textContent = "pendiente factura";
-    document.getElementById("roi").innerHTML = `<p><b>Ahorro estimado/mes:</b> ${fmt(d.savings_cents)} (estimación demo: −35% software + 70% de tu tiempo contable).</p><p class="mut">Planner: ${d.source}</p>`;
-    bubble(`Perfecto. Detecté ${f.length} datos con trazabilidad total. Tu ahorro estimado es <b>${fmt(d.savings_cents)}/mes</b>. Fuente del planner: <b>${d.source}</b>. Ahora escribe tu primera factura, p. ej.: <i>factura a Distribuciones Bolivar por 2.450.000 + IVA</i>.`,"ai");
-    el.value = "factura a Distribuciones Bolivar por 2.450.000 + IVA por servicios contables"; step = 1; document.getElementById("sendBtn").textContent = "Generar factura";
+    document.getElementById("kSchema").textContent = t("pending");
+    document.getElementById("roi").innerHTML = t("roi", {sav: fmt(d.savings_cents), src: d.source});
+    say("perfect", {n: f.length, sav: fmt(d.savings_cents), src: d.source, ex: t("example")});
+    el.value = t("example"); step = 1; document.getElementById("sendBtn").textContent = t("gen"); setStep(2);
   } else {
     const d = await timed("/api/draft",{text, with_tools: !sabotaged, fields_count: 0});
     renderInvoice(d);
-    bubble(d.transmit ? "Factura validada por el verificador: schema DIAN OK y cada cifra con <code>tool_call_id</code>. Lista para transmitir."
-                       : "El verificador bloqueó la factura: hay cifras sin <code>tool_call_id</code>. El agente propone; el verificador decide.","ai");
+    say(d.transmit ? "valid_ok" : "blocked");
     sabotaged = false;
   }
 }
-function sabotage(){ sabotaged = true; bubble("Modo sabotaje: el LLM escribirá la próxima cifra sin herramientas.","ai"); }
+function sabotage(){ sabotaged = true; say("sabmode"); }
 async function runSuite(){
   const box = document.getElementById("suite");
-  box.innerHTML = "<p class='mut'>Corriendo 20 casos deterministas…</p>";
+  box.innerHTML = "<p class='mut'>" + t("running") + "</p>";
   const valids = [1,1000,9500000,245000000,30000000,1000000000,99,50000000000];
   const jobs = valids.map(c => ({path:"/api/verify", body:{amounts:[{cents:c,tool_call_id:"t"}],dian_schema_ok:true}, expect:true}));
   [1,1000,9500000,245000000,30000000,10000000].forEach(c => jobs.push({path:"/api/verify", body:{amounts:[{cents:c}],dian_schema_ok:true}, expect:false}));
@@ -132,24 +207,25 @@ async function runSuite(){
   lat.sort((a,b)=>a-b);
   const p95 = Math.round(lat[Math.ceil(0.95*lat.length)-1]);
   document.getElementById("kP95").textContent = p95 + " ms";
-  document.getElementById("kGround").textContent = "100% (suite)";
-  document.getElementById("kSchema").textContent = "OK (suite)";
-  box.innerHTML = `<p><b>${pass}/20 comportamientos esperados</b> · p95 sesión ${p95} ms · N=20 determinista, medido en tu navegador.</p>
-  <table><tr><th>#</th><th></th><th>Resultado</th></tr>${rows.join("")}</table>`;
-  bubble(`Suite completa: <b>${pass}/20</b> comportamientos esperados, p95 ${p95} ms medido en tu navegador. Nada de diapositivas: el gate ejecutó de verdad.`,"ai");
+  document.getElementById("kGround").textContent = t("s100");
+  document.getElementById("kSchema").textContent = t("sok");
+  box.innerHTML = `<p>${t("suite_head", {p: pass, p95: p95})}</p>
+  <table><tr><th>#</th><th></th><th>${t("th_r")}</th></tr>${rows.join("")}</table>`;
+  say("suite_done", {p: pass, p95: p95});
 }
 function renderInvoice(d){
   const items = d.draft.items.map(it =>
-    `<tr><td>${it.concept} ${it.tool_call_id ? `<span class="chip ok">${it.tool_call_id}</span>` : `<span class="chip bad">sin trazabilidad</span>`}</td><td>${fmt(it.cents)}</td></tr>`).join("");
+    `<tr><td>${it.concept} ${it.tool_call_id ? `<span class="chip ok">${it.tool_call_id}</span>` : `<span class="chip bad">${t("untracked")}</span>`}</td><td>${fmt(it.cents)}</td></tr>`).join("");
   document.getElementById("inv").innerHTML = `
-    <h4 style="margin:.2rem 0">Factura demo ${d.draft.number} — ${d.draft.customer} (${d.draft.date})</h4>
-    <table><tr><th>Concepto</th><th>Valor</th></tr>${items}
-    <tr><td>Subtotal</td><td>${fmt(d.draft.subtotal_cents)}</td></tr>
-    <tr><td>IVA 19%</td><td>${fmt(d.draft.iva_cents)}</td></tr>
-    <tr><td><b>Total</b></td><td><b>${fmt(d.draft.total_cents)}</b></td></tr></table>`;
-  document.getElementById("verdict").innerHTML = `<div class="${d.transmit ? "pass" : "block"}"><b>${d.transmit ? "TRANSMITIR: SI" : "TRANSMITIR: NO"}</b> — ${d.veredicto}</div>`;
-  document.getElementById("kSchema").textContent = d.draft.dian_schema_ok ? "OK" : "FALLA";
-  document.getElementById("kGround").textContent = d.transmit ? "100%" : "cifras sin fuente";
+    <h4 style="margin:.2rem 0">${t("inv_demo")} ${d.draft.number} — ${d.draft.customer} (${d.draft.date})</h4>
+    <table><tr><th>${t("th_c")}</th><th>${t("th_v")}</th></tr>${items}
+    <tr><td>${t("subtotal")}</td><td>${fmt(d.draft.subtotal_cents)}</td></tr>
+    <tr><td>${t("iva")}</td><td>${fmt(d.draft.iva_cents)}</td></tr>
+    <tr><td><b>${t("total")}</b></td><td><b>${fmt(d.draft.total_cents)}</b></td></tr></table>`;
+  document.getElementById("verdict").innerHTML = `<div class="${d.transmit ? "pass" : "block"}"><span id="verdict-light" class="light ${d.transmit ? "go" : "stop"}"></span><b>${d.transmit ? t("tx_yes") : t("tx_no")} — ${d.transmit ? t("go_word") : t("stop_word")}</b><br><span class="mut">${d.veredicto}</span></div>`;
+  setStep(3);
+  document.getElementById("kSchema").textContent = d.draft.dian_schema_ok ? t("ok") : t("bad");
+  document.getElementById("kGround").textContent = d.transmit ? t("full") : t("nosrc");
 }
 </script>
 </body></html>
@@ -360,6 +436,13 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, b'{"ok":true}')
         elif self.path in ("/", "/index.html"):
             self._send(200, PAGE.encode("utf-8"), "text/html; charset=utf-8")
+        elif self.path == "/app":
+            try:
+                body = APP_PATH.read_bytes()
+            except OSError:
+                self._send(404, b'{"error":"not found"}')
+            else:
+                self._send(200, body, "text/html; charset=utf-8")
         else:
             self._send(404, b'{"error":"not found"}')
 

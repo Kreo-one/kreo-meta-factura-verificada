@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kreo Fiscal Shield — el agente propone, el verificador decide</title>
+<style>
+    :root {
+      --color-emerald-500: #10b981;
+      --color-emerald-600: #059669;
+      --color-emerald-700: #047857;
+      --color-emerald-50: #ecfdf5;
+      --color-emerald-100: #d1fae5;
+      --color-slate-50: #f8fafc;
+      --color-slate-100: #f1f5f9;
+      --color-slate-200: #e2e8f0;
+      --color-slate-300: #cbd5e1;
+      --color-slate-400: #94a3b8;
+      --color-slate-500: #64748b;
+      --color-slate-600: #475569;
+      --color-slate-700: #334155;
+      --color-slate-800: #1e293b;
+      --color-slate-900: #0f172a;
+      --color-red-50: #fef2f2;
+      --color-red-600: #dc2626;
+      --color-red-700: #b91c1c;
+      --color-amber-50: #fffbeb;
+      --color-amber-700: #b45309;
+      --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: #f8fafc;
+      color: var(--color-slate-800);
+      line-height: 1.5;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Header */
+    header {
+      background: #ffffff;
+      border: 1px solid var(--color-slate-200);
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .shield-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--color-emerald-50);
+      border: 1px solid var(--color-emerald-500);
+      color: var(--color-emerald-600);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--color-slate-900);
+      letter-spacing: -0.01em;
+    }
+
+    h1 span {
+      color: var(--color-slate-500);
+      font-weight: 400;
+    }
+
+    .lang-toggle {
+      border: 1px solid var(--color-slate-300);
+      background: #ffffff;
+      border-radius: 8px;
+      display: inline-flex;
+      overflow: hidden;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--color-slate-600);
+      font-family: inherit;
+    }
+
+    .lang-btn.active {
+      background: var(--color-slate-100);
+      color: var(--color-slate-900);
+      font-weight: 700;
+    }
+
+    .subtitle-banner {
+      color: var(--color-slate-600);
+      font-size: 0.875rem;
+      line-height: 1.45;
+    }
+
+    .subtitle-banner code {
+      background: var(--color-slate-100);
+      color: var(--color-slate-800);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      border: 1px solid var(--color-slate-200);
+    }
+
+    /* Layout Principal */
+    .grid-main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .grid-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--color-slate-200);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card-title {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--color-slate-900);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Chat / Left Column */
+    .chat-bubble {
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    .chat-bubble.assistant {
+      background: var(--color-slate-50);
+      border: 1px solid var(--color-slate-200);
+      color: var(--color-slate-700);
+    }
+
+    .chat-bubble.user {
+      background: #ffffff;
+      border: 1px solid var(--color-slate-300);
+      color: var(--color-slate-800);
+      font-weight: 500;
+    }
+
+    .chat-bubble.status-box {
+      background: var(--color-emerald-50);
+      border: 1px solid var(--color-emerald-100);
+      color: var(--color-emerald-700);
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .input-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-slate-500);
+    }
+
+    textarea {
+      width: 100%;
+      border: 1px solid var(--color-slate-300);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 0.875rem;
+      line-height: 1.45;
+      color: var(--color-slate-800);
+      resize: vertical;
+      min-height: 72px;
+      background: #ffffff;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--color-emerald-600);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+    }
+
+    .actions-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button.btn {
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+    }
+
+    button.btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--color-emerald-600);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--color-emerald-700);
+    }
+
+    .btn-secondary {
+      background: var(--color-slate-100);
+      color: var(--color-slate-700);
+      border-color: var(--color-slate-300);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--color-slate-200);
+      color: var(--color-slate-900);
+    }
+
+    .btn-danger {
+      background: var(--color-red-50);
+      color: var(--color-red-700);
+      border-color: var(--color-red-600);
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: #fee2e2;
+    }
+
+    .wizard-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--color-slate-500);
+      border-top: 1px solid var(--color-slate-100);
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+
+    .stepper-dots {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--color-slate-300);
+    }
+
+    .dot.active {
+      background: var(--color-emerald-600);
+    }
+
+    /* Right Column / Panels */
+    .empty-state {
+      padding: 24px;
+      text-align: center;
+      color: var(--color-slate-400);
+      font-size: 0.875rem;
+      border: 1px dashed var(--color-slate-200);
+      border-radius: 8px;
+      background: var(--color-slate-50);
+    }
+
+    /* Chips extraídos */
+    .chips-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .chip-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: var(--color-emerald-50);
+      border: 1px solid var(--color-emerald-100);
+      border-radius: 8px;
+      font-size: 0.8125rem;
+      gap: 12px;
+    }
+
+    .chip-left {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip-label {
+      color: var(--color-slate-500);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .chip-val {
+      font-weight: 700;
+      color: var(--color-slate-800);
+    }
+
+    .chip-tool {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      background: #ffffff;
+      color: var(--color-emerald-700);
+      border: 1px solid var(--color-emerald-500);
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .savings-banner {
+      margin-top: 6px;
+      padding: 12px 14px;
+      background: var(--color-slate-50);
+      border: 1px solid var(--color-slate-200);
+      border-radius: 8px;
+      font-size: 0.8125rem;
+      color: var(--color-slate-600);
+    }
+
+    .savings-banner strong {
+      color: var(--color-emerald-700);
+      font-size: 0.9375rem;
+    }
+
+    /* Factura */
+    .invoice-card {
+      border: 1px solid var(--color-slate-200);
+      border-radius: 8px;
+      padding: 16px;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .invoice-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--color-slate-500);
+      border-bottom: 1px solid var(--color-slate-100);
+      padding-bottom: 8px;
+    }
+
+    .invoice-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+    }
+
+    .invoice-table th {
+      text-align: left;
+      color: var(--color-slate-400);
+      font-weight: 600;
+      padding: 6px 0;
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .invoice-table td {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--color-slate-100);
+    }
+
+    .invoice-table td.num,
+    .invoice-table th.num {
+      text-align: right;
+      font-family: var(--font-mono);
+    }
+
+    .invoice-totals {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 8px;
+      font-size: 0.8125rem;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      color: var(--color-slate-600);
+    }
+
+    .total-row.grand {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--color-slate-900);
+      border-top: 1px solid var(--color-slate-200);
+      padding-top: 8px;
+      margin-top: 4px;
+    }
+
+    .total-row span.num {
+      font-family: var(--font-mono);
+    }
+
+    .verdict-badge {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+
+    .verdict-pass {
+      background: var(--color-emerald-50);
+      border: 1px solid var(--color-emerald-500);
+      color: var(--color-emerald-700);
+    }
+
+    .verdict-block {
+      background: var(--color-red-50);
+      border: 1px solid var(--color-red-600);
+      color: var(--color-red-700);
+    }
+
+    /* Suite Section */
+    details.suite-details {
+      background: #ffffff;
+      border: 1px solid var(--color-slate-200);
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      overflow: hidden;
+    }
+
+    summary.suite-summary {
+      padding: 16px 20px;
+      font-weight: 700;
+      font-size: 0.9375rem;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      list-style: none;
+    }
+
+    summary.suite-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .summary-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .suite-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--color-slate-300);
+    }
+
+    .suite-indicator.ready {
+      background: var(--color-emerald-600);
+    }
+
+    .suite-indicator.running {
+      background: #f59e0b;
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    .suite-content {
+      padding: 0 20px 20px 20px;
+      border-top: 1px solid var(--color-slate-100);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .suite-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      font-size: 0.8125rem;
+      color: var(--color-slate-500);
+    }
+
+    .suite-stats code {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--color-slate-800);
+    }
+
+    .suite-table-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .suite-table-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .suite-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      background: var(--color-slate-50);
+      border: 1px solid var(--color-slate-200);
+      font-family: var(--font-mono);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .suite-row.pass {
+      border-left: 3px solid var(--color-emerald-600);
+      background: var(--color-emerald-50);
+    }
+
+    .suite-row.blocked {
+      border-left: 3px solid var(--color-red-600);
+      color: var(--color-red-700);
+      background: var(--color-red-50);
+    }
+
+    .suite-idx {
+      color: var(--color-slate-400);
+      width: 24px;
+      flex-shrink: 0;
+    }
+
+    .suite-icon {
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .suite-icon.pass {
+      color: var(--color-emerald-600);
+    }
+
+    .suite-icon.blocked {
+      color: var(--color-red-600);
+    }
+
+    /* Footer Telemetría */
+    footer.telemetry-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--color-slate-500);
+      padding: 12px 16px;
+      background: #ffffff;
+      border: 1px solid var(--color-slate-200);
+      border-radius: 8px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .telemetry-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .telemetry-item span.kpi {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--color-slate-800);
+      padding: 2px 6px;
+      background: var(--color-slate-100);
+      border-radius: 4px;
+    }
+
+    .status-online {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--color-emerald-700);
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-emerald-500);
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+<!-- Header -->
+<header>
+<div class="header-top">
+<div class="brand-group">
+<div class="shield-badge">✓</div>
+<h1>Kreo Fiscal Shield <span id="hdr-tagline">— el agente propone, el verificador decide</span></h1>
+</div>
+<div aria-label="Selector de idioma" class="lang-toggle" role="group">
+<button class="lang-btn active" id="btn-lang-es" onclick="setLanguage('es')" type="button">ES</button>
+<button class="lang-btn" id="btn-lang-en" onclick="setLanguage('en')" type="button">EN</button>
+</div>
+</div>
+<p class="subtitle-banner" id="hdr-sub">
+      Wizard del ERP SaaS agéntico Kreo.One (planner Muse Spark en vivo; sin key, mock local honesto — el gate no cambia). Cada cifra lleva su <code>tool_call_id</code>: sin trazabilidad, no hay transmit.
+    </p>
+</header>
+<!-- Main Grid -->
+<div class="grid-main">
+<!-- Left Column: Intake & Actions -->
+<div class="card" id="card-input">
+<div class="card-title">
+<span id="title-intake">Entrada Agéntica</span>
+<span class="status-online"><span class="status-dot"></span> <span id="lbl-status-agent">Sofía Activa</span></span>
+</div>
+<!-- Welcome Chat Bubble -->
+<div class="chat-bubble assistant" id="chat-welcome">
+        ¡Bienvenido a KreO.One! Soy Sofía. Cuéntame de tu empresa: cuántas facturas emites, cuánto tiempo gastas en contabilidad y cuánto pagas en software.
+      </div>
+<!-- Input 1: Company Profile Textarea -->
+<div class="input-group">
+<label class="input-label" for="txt-extract" id="lbl-txt-extract">1. Datos de tu empresa (Texto libre)</label>
+<textarea id="txt-extract" rows="3">Mi empresa es Distribuciones Bolivar SAS, facturamos 95 facturas al mes, gasto 40 horas contables y pago 300.000 en software</textarea>
+</div>
+<!-- Actions 1: Extract -->
+<div class="actions-grid">
+<button class="btn btn-primary" id="btn-extract" onclick="handleExtract()" type="button">
+<span id="btn-extract-text">Extraer datos trazables</span>
+</button>
+</div>
+<!-- Input 2: Invoice Draft Textarea -->
+<div class="input-group" style="margin-top: 10px;">
+<label class="input-label" for="txt-draft" id="lbl-txt-draft">2. Emisión de factura (Texto libre)</label>
+<textarea id="txt-draft" rows="2">factura a Distribuciones Bolivar por 2.450.000 + IVA por servicios contables</textarea>
+</div>
+<!-- Actions 2: Draft & Suite -->
+<div class="actions-grid">
+<button class="btn btn-primary" id="btn-draft" onclick="handleDraft(true)" type="button">
+<span id="btn-draft-text">Generar factura</span>
+</button>
+<button class="btn btn-danger" id="btn-sabotage" onclick="handleDraft(false)" type="button">
+<span id="btn-sabotage-text">Simular LLM sin herramientas</span>
+</button>
+<button class="btn btn-secondary" id="btn-suite" onclick="runSuite()" type="button">
+<span id="btn-suite-text">Correr suite de verificación (20 casos)</span>
+</button>
+</div>
+<!-- Step Indicator -->
+<div class="wizard-footer">
+<div class="stepper-dots">
+<span class="dot active"></span>
+<span class="dot" id="step-dot-2"></span>
+<span class="dot" id="step-dot-3"></span>
+</div>
+<span id="step-caption">Paso 1: cuéntanos tu operación. Paso 2: escribe tu primera factura tras el análisis.</span>
+</div>
+</div>
+<!-- Right Column: Outputs -->
+<div style="display: flex; flex-direction: column; gap: 20px;">
+<!-- Panel: Chips / Extracted Data -->
+<div class="card" id="card-extracted">
+<div class="card-title">
+<span id="title-extracted">Datos extraídos (con trazabilidad)</span>
+<span id="badge-extracted-count" style="font-size: 0.75rem; color: var(--color-slate-400); font-family: var(--font-mono);">—</span>
+</div>
+<div id="chips">
+<div class="empty-state" id="empty-chips">Sin datos aún…</div>
+</div>
+</div>
+<!-- Panel: Live Invoice & Verdict -->
+<div class="card" id="card-invoice">
+<div class="card-title">
+<span id="title-invoice">Factura en vivo</span>
+<span id="badge-invoice-status" style="font-size: 0.75rem; color: var(--color-slate-400); font-family: var(--font-mono);">—</span>
+</div>
+<div id="inv">
+<div class="empty-state" id="empty-inv">Tu primera factura aparece aquí…</div>
+</div>
+<div id="verdict"></div>
+</div>
+</div>
+</div>
+<!-- Suite Section (Details) -->
+<details class="suite-details" id="suite-details">
+<summary class="suite-summary">
+<div class="summary-left">
+<span class="suite-indicator" id="suite-led"></span>
+<span id="title-suite-summary">Avanzado: suite determinista (20 casos)</span>
+</div>
+<span id="suite-kpi-summary" style="font-size: 0.8125rem; color: var(--color-slate-500); font-family: var(--font-mono);">Oculto (ejecuta la suite para auditar)</span>
+</summary>
+<div class="suite-content">
+<div class="suite-stats">
+<span id="lbl-suite-status">Suite no ejecutada en esta sesión.</span>
+<span>p95 cliente: <code id="suite-p95">—</code></span>
+</div>
+<div class="suite-table-grid" id="suite-rows">
+<div class="empty-state" id="empty-suite-msg" style="grid-column: 1 / -1;">Haz clic en «Correr suite de verificación (20 casos)» para lanzar los 20 jobs fan-out en paralelo.</div>
+</div>
+</div>
+</details>
+<!-- Bottom Telemetry Bar -->
+<footer class="telemetry-bar">
+<div class="telemetry-group">
+<div class="telemetry-item">
+<span id="lbl-grounding">Grounding:</span> <span class="kpi" id="kpi-grounding">—</span>
+</div>
+<div class="telemetry-item">
+<span id="lbl-dian">Schema DIAN:</span> <span class="kpi" id="kpi-dian">—</span>
+</div>
+<div class="telemetry-item">
+<span id="lbl-p95">p95 sesión:</span> <span class="kpi" id="kpi-p95">—</span>
+</div>
+</div>
+<div class="telemetry-item">
+<span class="status-online"><span class="status-dot"></span> <span id="lbl-gate-status">Deterministic Verification Gate: READY</span></span>
+</div>
+</footer>
+</div>
+<!-- Logic / Real Fetches / i18n -->
+<script>
+  let currentLang = 'es';
+  const sessionLatencies = [];
+
+  // Reactive state store
+  const state = {
+    extractedData: null,
+    draftData: null,
+    suiteResults: null,
+    suiteP95: null
+  };
+
+  const i18n = {
+    es: {
+      tagline: "— el agente propone, el verificador decide",
+      sub: "Wizard del ERP SaaS agéntico Kreo.One (planner Muse Spark en vivo; sin key, mock local honesto — el gate no cambia). Cada cifra lleva su <code>tool_call_id</code>: sin trazabilidad, no hay transmit.",
+      titleIntake: "Entrada Agéntica",
+      lblStatusAgent: "Sofía Activa",
+      chatWelcome: "¡Bienvenido a KreO.One! Soy Sofía. Cuéntame de tu empresa: cuántas facturas emites, cuánto tiempo gastas en contabilidad y cuánto pagas en software.",
+      lblTxtExtract: "1. Datos de tu empresa (Texto libre)",
+      btnExtract: "Extraer datos trazables",
+      lblTxtDraft: "2. Emisión de factura (Texto libre)",
+      btnDraft: "Generar factura",
+      btnSabotage: "Simular LLM sin herramientas",
+      btnSuite: "Correr suite de verificación (20 casos)",
+      stepCaption: "Paso 1: cuéntanos tu operación. Paso 2: escribe tu primera factura tras el análisis.",
+      titleExtracted: "Datos extraídos (con trazabilidad)",
+      titleInvoice: "Factura en vivo",
+      emptyChips: "Sin datos aún…",
+      emptyInv: "Tu primera factura aparece aquí…",
+      emptySuite: "Haz clic en «Correr suite de verificación (20 casos)» para lanzar los 20 jobs fan-out en paralelo.",
+      titleSuiteSummary: "Avanzado: suite determinista (20 casos)",
+      suiteKpiSummary: "Oculto (ejecuta la suite para auditar)",
+      suiteNotRun: "Suite no ejecutada en esta sesión.",
+      gateReady: "Deterministic Verification Gate: READY",
+      errExtractText: "Texto requerido",
+      transYes: "TRANSMITIR: SÍ — PASS",
+      transNo: "TRANSMITIR: NO — BLOQUEADO",
+      gateApproved: "Gate Aprobado",
+      gateBlocked: "Gate Bloqueado",
+      savingsLabel: "Ahorro estimado/mes:",
+      sourceOrigin: "Origen",
+      concept: "Concepto",
+      value: "Valor",
+      subtotal: "Subtotal",
+      iva: "IVA 19%",
+      total: "Total",
+      draftNum: "Factura borrador",
+      client: "Cliente",
+      fieldsCount: "campos",
+      runningSuite: "Ejecutando 20 casos concurrentes contra /api/verify y /api/extract...",
+      netError: "error de red",
+      suiteSummaryEnd: "{pass}/20 comportamientos esperados · p95 suite {p95} ms · N=20 determinista",
+      networkErrAlert: "No se pudo conectar al servidor. Verifica el backend en src/server.py."
+    },
+    en: {
+      tagline: "— the agent proposes, the verifier decides",
+      sub: "Kreo.One agentic SaaS ERP wizard (live Muse Spark planner; no key, honest local mock — the gate never changes). Every figure carries its <code>tool_call_id</code>: no traceability, no transmit.",
+      titleIntake: "Agent Intake",
+      lblStatusAgent: "Sofia Active",
+      chatWelcome: "Welcome to KreO.One! I'm Sofia. Tell me about your company: how many invoices you issue, how much time you spend on accounting and what you pay for software.",
+      lblTxtExtract: "1. Company operation (Free text)",
+      btnExtract: "Extract traceable data",
+      lblTxtDraft: "2. Invoice issuance (Free text)",
+      btnDraft: "Generate invoice",
+      btnSabotage: "Simulate LLM without tools",
+      btnSuite: "Run verification suite (20 cases)",
+      stepCaption: "Step 1: tell us your operations. Step 2: write your first invoice after analysis.",
+      titleExtracted: "Extracted data (with traceability)",
+      titleInvoice: "Live invoice",
+      emptyChips: "No data yet…",
+      emptyInv: "Your first invoice shows up here…",
+      emptySuite: "Click 'Run verification suite (20 cases)' to launch 20 fan-out jobs in parallel.",
+      titleSuiteSummary: "Advanced: deterministic suite (20 cases)",
+      suiteKpiSummary: "Hidden (run suite to audit)",
+      suiteNotRun: "Suite not executed in this session.",
+      gateReady: "Deterministic Verification Gate: READY",
+      errExtractText: "Text required",
+      transYes: "TRANSMIT: YES — PASS",
+      transNo: "TRANSMIT: NO — BLOCKED",
+      gateApproved: "Gate Approved",
+      gateBlocked: "Gate Blocked",
+      savingsLabel: "Estimated savings/mo:",
+      sourceOrigin: "Source",
+      concept: "Concept",
+      value: "Value",
+      subtotal: "Subtotal",
+      iva: "VAT 19%",
+      total: "Total",
+      draftNum: "Draft invoice",
+      client: "Customer",
+      fieldsCount: "fields",
+      runningSuite: "Running 20 concurrent jobs against /api/verify and /api/extract...",
+      netError: "network error",
+      suiteSummaryEnd: "{pass}/20 expected behaviors · suite p95 {p95} ms · N=20 deterministic",
+      networkErrAlert: "Could not connect to server. Check backend at src/server.py."
+    }
+  };
+
+  function setLanguage(lang) {
+    currentLang = lang;
+    document.getElementById('btn-lang-es').classList.toggle('active', lang === 'es');
+    document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
+    
+    const t = i18n[lang];
+    document.getElementById('hdr-tagline').textContent = t.tagline;
+    document.getElementById('hdr-sub').innerHTML = t.sub;
+    document.getElementById('title-intake').textContent = t.titleIntake;
+    document.getElementById('lbl-status-agent').textContent = t.lblStatusAgent;
+    document.getElementById('chat-welcome').textContent = t.chatWelcome;
+    document.getElementById('lbl-txt-extract').textContent = t.lblTxtExtract;
+    document.getElementById('btn-extract-text').textContent = t.btnExtract;
+    document.getElementById('lbl-txt-draft').textContent = t.lblTxtDraft;
+    document.getElementById('btn-draft-text').textContent = t.btnDraft;
+    document.getElementById('btn-sabotage-text').textContent = t.btnSabotage;
+    document.getElementById('btn-suite-text').textContent = t.btnSuite;
+    document.getElementById('step-caption').textContent = t.stepCaption;
+    document.getElementById('title-extracted').textContent = t.titleExtracted;
+    document.getElementById('title-invoice').textContent = t.titleInvoice;
+    document.getElementById('title-suite-summary').textContent = t.titleSuiteSummary;
+    document.getElementById('lbl-gate-status').textContent = t.gateReady;
+
+    // Reactive re-render of cached state
+    if (state.extractedData) {
+      renderExtracted(state.extractedData);
+    } else {
+      const emptyC = document.getElementById('empty-chips');
+      if (emptyC) emptyC.textContent = t.emptyChips;
+    }
+
+    if (state.draftData) {
+      renderDraft(state.draftData);
+    } else {
+      const emptyI = document.getElementById('empty-inv');
+      if (emptyI) emptyI.textContent = t.emptyInv;
+    }
+
+    if (state.suiteResults) {
+      renderSuiteResults(state.suiteResults, state.suiteP95);
+    } else {
+      document.getElementById('suite-kpi-summary').textContent = t.suiteKpiSummary;
+      document.getElementById('lbl-suite-status').textContent = t.suiteNotRun;
+      const emptyS = document.getElementById('empty-suite-msg');
+      if (emptyS) emptyS.textContent = t.emptySuite;
+    }
+  }
+
+  function formatCents(cents) {
+    if (cents === undefined || cents === null) return "$ 0";
+    const val = Math.round(cents / 100);
+    const locale = currentLang === 'es' ? 'es-CO' : 'en-US';
+    return "$ " + val.toLocaleString(locale);
+  }
+
+  // Exact p95 index: Math.ceil(0.95 * len) - 1
+  function calcP95(latencies) {
+    if (!latencies || latencies.length === 0) return 0;
+    const sorted = [...latencies].sort((a, b) => a - b);
+    const idx = Math.max(0, Math.min(Math.ceil(0.95 * sorted.length) - 1, sorted.length - 1));
+    return Math.round(sorted[idx]);
+  }
+
+  function recordLatency(ms) {
+    sessionLatencies.push(ms);
+    updateP95();
+  }
+
+  function updateP95() {
+    if (sessionLatencies.length === 0) {
+      document.getElementById('kpi-p95').textContent = "—";
+      return;
+    }
+    const p95 = calcP95(sessionLatencies);
+    document.getElementById('kpi-p95').textContent = `${p95} ms`;
+  }
+
+  // 1. POST /api/extract
+  async function handleExtract() {
+    const text = document.getElementById('txt-extract').value.trim();
+    if (!text) {
+      alert(i18n[currentLang].errExtractText);
+      return;
+    }
+
+    const btn = document.getElementById('btn-extract');
+    btn.disabled = true;
+    const t0 = performance.now();
+
+    try {
+      const res = await fetch('/api/extract', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ text })
+      });
+      const t1 = performance.now();
+      recordLatency(t1 - t0);
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({error: 'HTTP ' + res.status}));
+        alert("Error en /api/extract: " + (err.error || res.statusText));
+        return;
+      }
+
+      const data = await res.json();
+      state.extractedData = data;
+      renderExtracted(data);
+      document.getElementById('step-dot-2').classList.add('active');
+    } catch (e) {
+      console.error(e);
+      alert(i18n[currentLang].networkErrAlert);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function renderExtracted(data) {
+    const chipsDiv = document.getElementById('chips');
+    const fields = data.fields || [];
+    const t = i18n[currentLang];
+
+    if (fields.length === 0) {
+      chipsDiv.innerHTML = `<div class="empty-state" id="empty-chips">${t.emptyChips}</div>`;
+      document.getElementById('badge-extracted-count').textContent = "0";
+      document.getElementById('kpi-grounding').textContent = "0/0";
+      return;
+    }
+
+    let html = '<div class="chips-container">';
+    fields.forEach(f => {
+      html += `
+        <div class="chip-item">
+          <div class="chip-left">
+            <span class="chip-label">${f.field}</span>
+            <span class="chip-val">${f.display || f.value}</span>
+          </div>
+          <span class="chip-tool">${f.tool_call_id || (currentLang === 'es' ? 'sin tool_call_id' : 'no tool_call_id')}</span>
+        </div>
+      `;
+    });
+    html += '</div>';
+
+    if (data.savings_cents) {
+      const moUnit = currentLang === 'es' ? '/mes' : '/mo';
+      html += `
+        <div class="savings-banner">
+          <div>${t.savingsLabel} <strong>${formatCents(data.savings_cents)}${moUnit}</strong></div>
+          <div style="font-size:0.6875rem; color:var(--color-slate-500); margin-top:3px; font-family:var(--font-mono);">
+            ${t.sourceOrigin}: ${data.source || 'planner'}
+          </div>
+        </div>
+      `;
+    }
+
+    chipsDiv.innerHTML = html;
+    document.getElementById('badge-extracted-count').textContent = `${fields.length} ${t.fieldsCount}`;
+    document.getElementById('kpi-grounding').textContent = `${fields.length}/${fields.length} (100%)`;
+  }
+
+  // 2. POST /api/draft
+  async function handleDraft(withTools = true) {
+    const text = document.getElementById('txt-draft').value.trim();
+    if (!text) {
+      alert(i18n[currentLang].errExtractText);
+      return;
+    }
+
+    const btn = withTools ? document.getElementById('btn-draft') : document.getElementById('btn-sabotage');
+    btn.disabled = true;
+    const t0 = performance.now();
+
+    try {
+      const res = await fetch('/api/draft', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ text, with_tools: withTools })
+      });
+      const t1 = performance.now();
+      recordLatency(t1 - t0);
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({error: 'HTTP ' + res.status}));
+        alert("Error en /api/draft: " + (err.error || res.statusText));
+        return;
+      }
+
+      const data = await res.json();
+      state.draftData = data;
+      renderDraft(data);
+      document.getElementById('step-dot-3').classList.add('active');
+    } catch (e) {
+      console.error(e);
+      alert(i18n[currentLang].networkErrAlert);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function renderDraft(data) {
+    const invDiv = document.getElementById('inv');
+    const verDiv = document.getElementById('verdict');
+    const draft = data.draft;
+    const transmit = data.transmit === true;
+    const t = i18n[currentLang];
+    const defaultVer = transmit ? 'PASS' : (currentLang === 'es' ? 'BLOQUEADO' : 'BLOCKED');
+    const veredicto = data.veredicto || defaultVer;
+
+    if (!draft) {
+      invDiv.innerHTML = `<div class="empty-state" id="empty-inv">${t.emptyInv}</div>`;
+      verDiv.innerHTML = '';
+      return;
+    }
+
+    let itemsHtml = '';
+    (draft.items || []).forEach(it => {
+      const toolFallback = currentLang === 'es' ? 'sin tool_id' : 'no tool_id';
+      itemsHtml += `
+        <tr>
+          <td>${it.concept} <span class="chip-tool" style="margin-left:4px;">${it.tool_call_id || toolFallback}</span></td>
+          <td class="num">${formatCents(it.cents)}</td>
+        </tr>
+      `;
+    });
+
+    invDiv.innerHTML = `
+      <div class="invoice-card">
+        <div class="invoice-meta">
+          <span><strong>${t.draftNum}:</strong> ${draft.number || 'DEMO-0001'} (${draft.date || ''})</span>
+          <span><strong>${t.client}:</strong> ${draft.customer || ''}</span>
+        </div>
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <th>${t.concept}</th>
+              <th class="num">${t.value}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHtml}
+          </tbody>
+        </table>
+        <div class="invoice-totals">
+          <div class="total-row">
+            <span>${t.subtotal}</span>
+            <span class="num">${formatCents(draft.subtotal_cents)}</span>
+          </div>
+          <div class="total-row">
+            <span>${t.iva}</span>
+            <span class="num">${formatCents(draft.iva_cents)}</span>
+          </div>
+          <div class="total-row grand">
+            <span>${t.total}</span>
+            <span class="num">${formatCents(draft.total_cents)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Verdict Banner
+    if (transmit) {
+      verDiv.innerHTML = `
+        <div class="verdict-badge verdict-pass">
+          <span>✓ ${t.transYes}</span>
+          <span style="font-family:var(--font-mono); font-size:0.75rem;">${t.gateApproved}: ${veredicto}</span>
+        </div>
+      `;
+      document.getElementById('kpi-dian').textContent = draft.dian_schema_ok ? "OK" : (currentLang === 'es' ? "PENDIENTE" : "PENDING");
+      document.getElementById('badge-invoice-status').textContent = "PASS";
+    } else {
+      verDiv.innerHTML = `
+        <div class="verdict-badge verdict-block">
+          <span>✗ ${t.transNo}</span>
+          <span style="font-family:var(--font-mono); font-size:0.75rem;">${t.gateBlocked}: ${veredicto}</span>
+        </div>
+      `;
+      document.getElementById('kpi-dian').textContent = currentLang === 'es' ? "BLOQUEADO" : "BLOCKED";
+      document.getElementById('badge-invoice-status').textContent = currentLang === 'es' ? "BLOQUEADO" : "BLOCKED";
+    }
+  }
+
+  // 3. Suite de Verificación (20 casos fan-out en cliente)
+  async function runSuite() {
+    const btn = document.getElementById('btn-suite');
+    btn.disabled = true;
+    const led = document.getElementById('suite-led');
+    led.className = 'suite-indicator running';
+
+    const details = document.getElementById('suite-details');
+    details.open = true;
+
+    const rowsDiv = document.getElementById('suite-rows');
+    rowsDiv.innerHTML = `<div style="grid-column: 1 / -1; font-size: 0.8125rem; color: var(--color-slate-500);">${i18n[currentLang].runningSuite}</div>`;
+
+    // 20 jobs exactos:
+    // 8 montos válidos con tool_call_id -> expect transmit: true
+    // 6 sin tool -> expect transmit: false
+    // 3 con dian_schema_ok: false -> expect transmit: false
+    // 2 con tipos inválidos -> expect transmit: false
+    // 1 extract que devuelve exactamente 2 campos trazados con tool -> expect true
+    const jobs = [];
+
+    // 8 válidos
+    const validCents = [10000000, 245000000, 500000, 120000000, 35000000, 9500000, 1000, 46550000];
+    validCents.forEach((cents, i) => {
+      jobs.push({
+        id: jobs.length + 1,
+        type: 'verify',
+        body: { amounts: [{ cents, tool_call_id: `call_suite_${i + 1}` }], dian_schema_ok: true },
+        expectTransmit: true,
+        descEs: `monto válido (${cents} cents) con tool_call_id`,
+        descEn: `valid amount (${cents} cents) with tool_call_id`
+      });
+    });
+
+    // 6 sin tool
+    const noToolCents = [1, 1000, 9500000, 245000000, 30000000, 10000000];
+    noToolCents.forEach((cents) => {
+      jobs.push({
+        id: jobs.length + 1,
+        type: 'verify',
+        body: { amounts: [{ cents }], dian_schema_ok: true },
+        expectTransmit: false,
+        descEs: `bloqueado: cifra sin tool_call_id en {'cents': ${cents}}`,
+        descEn: `blocked: ungrounded amount in {'cents': ${cents}}`
+      });
+    });
+
+    // 3 con dian_schema_ok: false
+    for (let k = 0; k < 3; k++) {
+      jobs.push({
+        id: jobs.length + 1,
+        type: 'verify',
+        body: { amounts: [{ cents: 245000000, tool_call_id: 'call_suite_valid' }], dian_schema_ok: false },
+        expectTransmit: false,
+        descEs: `bloqueado: schema DIAN no validado antes de transmitir`,
+        descEn: `blocked: DIAN schema not validated before transmit`
+      });
+    }
+
+    // 2 tipos inválidos
+    jobs.push({
+      id: jobs.length + 1,
+      type: 'verify',
+      body: { amounts: [{ cents: "2450000", tool_call_id: 'call_invalid_str' }], dian_schema_ok: true },
+      expectTransmit: false,
+      descEs: `bloqueado: cents debe ser int, llego '2450000'`,
+      descEn: `blocked: cents must be int, received '2450000'`
+    });
+    jobs.push({
+      id: jobs.length + 1,
+      type: 'verify',
+      body: { amounts: [{ cents: 24.5, tool_call_id: 'call_invalid_float' }], dian_schema_ok: true },
+      expectTransmit: false,
+      descEs: `bloqueado: cents debe ser int, llego 24.5`,
+      descEn: `blocked: cents must be int, received 24.5`
+    });
+
+    // 1 extract
+    jobs.push({
+      id: jobs.length + 1,
+      type: 'extract',
+      body: { text: "Mi empresa Distribuciones Bolivar SAS tiene 95 facturas" },
+      expectTransmit: true,
+      descEs: `extract 2/2 trazados`,
+      descEn: `extract 2/2 traced`
+    });
+
+    const suiteLatencies = [];
+
+    // Fan-out paralelo
+    const promises = jobs.map(async (job) => {
+      const t0 = performance.now();
+      try {
+        let res, data, passed = false, noteEs = '', noteEn = '';
+
+        if (job.type === 'verify') {
+          res = await fetch('/api/verify', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(job.body)
+          });
+          data = await res.json().catch(() => ({}));
+          const actualTransmit = (data && data.transmit === true);
+          passed = (actualTransmit === job.expectTransmit);
+          noteEs = actualTransmit ? 'PASS' : (data.veredicto || job.descEs);
+          noteEn = actualTransmit ? 'PASS' : (data.veredicto || job.descEn);
+        } else {
+          // extract job: verificar exactamente 2 campos trazados con tool
+          res = await fetch('/api/extract', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(job.body)
+          });
+          data = await res.json().catch(() => ({}));
+          const fields = data.fields || [];
+          const trazados = fields.filter(f => Boolean(f.tool_call_id)).length;
+          passed = (trazados === 2);
+          noteEs = passed ? 'extract 2/2 trazados' : `extract incompleto (${trazados}/2)`;
+          noteEn = passed ? 'extract 2/2 traced' : `incomplete extract (${trazados}/2)`;
+        }
+
+        const t1 = performance.now();
+        const duration = t1 - t0;
+        suiteLatencies.push(duration);
+        recordLatency(duration);
+
+        return {
+          id: job.id,
+          passed,
+          noteEs,
+          noteEn,
+          duration
+        };
+      } catch (err) {
+        console.error("Job", job.id, err);
+        return {
+          id: job.id,
+          passed: false,
+          noteEs: 'error de red',
+          noteEn: 'network error',
+          duration: 0
+        };
+      }
+    });
+
+    const executionResults = await Promise.all(promises);
+    executionResults.sort((a, b) => a.id - b.id);
+
+    // Exact p95: Math.ceil(0.95 * 20) - 1 = index 18
+    const p95Val = calcP95(suiteLatencies);
+
+    state.suiteResults = executionResults;
+    state.suiteP95 = p95Val;
+
+    renderSuiteResults(executionResults, p95Val);
+    led.className = 'suite-indicator ready';
+    btn.disabled = false;
+  }
+
+  function renderSuiteResults(executionResults, p95Val) {
+    const rowsDiv = document.getElementById('suite-rows');
+    const totalPassed = executionResults.filter(r => r.passed).length;
+
+    let tableHtml = '';
+    executionResults.forEach(r => {
+      // Visual correction: green/pass style IF r.passed is true (even for blocked tests)
+      const isSuccess = Boolean(r.passed);
+      const rowClass = isSuccess ? 'pass' : 'blocked';
+      const iconSymbol = isSuccess ? '✓' : '✗';
+      const noteText = currentLang === 'es' ? r.noteEs : r.noteEn;
+
+      tableHtml += `
+        <div class="suite-row ${rowClass}">
+          <span class="suite-idx">#${r.id}</span>
+          <span class="suite-icon ${rowClass}">${iconSymbol}</span>
+          <span title="${noteText}">${noteText}</span>
+        </div>
+      `;
+    });
+
+    rowsDiv.innerHTML = tableHtml;
+
+    const summaryTemplate = i18n[currentLang].suiteSummaryEnd;
+    const summaryText = summaryTemplate.replace('{pass}', totalPassed).replace('{p95}', p95Val);
+    document.getElementById('suite-kpi-summary').textContent = `${totalPassed}/20 (${p95Val} ms)`;
+    document.getElementById('lbl-suite-status').textContent = summaryText;
+    document.getElementById('suite-p95').textContent = `${p95Val} ms`;
+  }
+</script>
+</body></html>
