@@ -670,6 +670,140 @@
       border-radius: 50%;
       background: var(--color-emerald-500);
     }
+
+    /* Tema oscuro: overrides de paleta (manual) */
+    [data-theme="dark"] {
+      --color-slate-50: #0f172a;
+      --color-slate-100: #1e293b;
+      --color-slate-200: #334155;
+      --color-slate-300: #475569;
+      --color-slate-400: #94a3b8;
+      --color-slate-500: #94a3b8;
+      --color-slate-600: #cbd5e1;
+      --color-slate-700: #e2e8f0;
+      --color-slate-800: #f1f5f9;
+      --color-slate-900: #ffffff;
+      --color-emerald-50: rgba(16, 185, 129, 0.12);
+      --color-emerald-100: rgba(16, 185, 129, 0.3);
+      --color-emerald-500: #10b981;
+      --color-emerald-600: #34d399;
+      --color-emerald-700: #6ee7b7;
+      --color-red-50: rgba(220, 38, 38, 0.15);
+      --color-red-600: #ef4444;
+      --color-red-700: #fca5a5;
+    }
+
+    [data-theme="dark"] body {
+      background: #0b1326;
+    }
+
+    [data-theme="dark"] header,
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .chat-bubble.user,
+    [data-theme="dark"] .chip-tool,
+    [data-theme="dark"] .invoice-card,
+    [data-theme="dark"] details.suite-details,
+    [data-theme="dark"] footer.telemetry-bar,
+    [data-theme="dark"] textarea {
+      background: #131b2e;
+    }
+
+    [data-theme="dark"] .btn-danger:hover:not(:disabled) {
+      background: rgba(220, 38, 38, 0.25);
+    }
+
+    /* Tema automatico: sigue al sistema salvo eleccion manual clara */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --color-slate-50: #0f172a;
+        --color-slate-100: #1e293b;
+        --color-slate-200: #334155;
+        --color-slate-300: #475569;
+        --color-slate-400: #94a3b8;
+        --color-slate-500: #94a3b8;
+        --color-slate-600: #cbd5e1;
+        --color-slate-700: #e2e8f0;
+        --color-slate-800: #f1f5f9;
+        --color-slate-900: #ffffff;
+        --color-emerald-50: rgba(16, 185, 129, 0.12);
+        --color-emerald-100: rgba(16, 185, 129, 0.3);
+        --color-emerald-500: #10b981;
+        --color-emerald-600: #34d399;
+        --color-emerald-700: #6ee7b7;
+        --color-red-50: rgba(220, 38, 38, 0.15);
+        --color-red-600: #ef4444;
+        --color-red-700: #fca5a5;
+      }
+
+      :root:not([data-theme="light"]) body {
+        background: #0b1326;
+      }
+
+      :root:not([data-theme="light"]) header,
+      :root:not([data-theme="light"]) .card,
+      :root:not([data-theme="light"]) .chat-bubble.user,
+      :root:not([data-theme="light"]) .chip-tool,
+      :root:not([data-theme="light"]) .invoice-card,
+      :root:not([data-theme="light"]) details.suite-details,
+      :root:not([data-theme="light"]) footer.telemetry-bar,
+      :root:not([data-theme="light"]) textarea {
+        background: #131b2e;
+      }
+
+      :root:not([data-theme="light"]) .btn-danger:hover:not(:disabled) {
+        background: rgba(220, 38, 38, 0.25);
+      }
+    }
+
+    /* Controles de cabecera (idioma + tema) */
+    .header-controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      flex: none;
+    }
+
+    /* Responsive sin tocar el desktop */
+    @media (max-width: 1023px) {
+      .header-top {
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+
+      .header-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .actions-grid button.btn {
+        flex: 1 1 100%;
+        justify-content: center;
+      }
+
+      .invoice-meta {
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .verdict-badge {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .suite-content {
+        overflow-x: auto;
+      }
+
+      .telemetry-group {
+        gap: 10px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -681,9 +815,16 @@
 <div class="shield-badge"><svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2l11 4v8c0 7-4.5 12-11 16C9.5 26 5 21 5 14V6z" fill="#059669"/><path d="M11 15l4 4 7-8" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
 <h1>Kreo Fiscal Shield <span id="hdr-tagline">— el agente propone, el verificador decide</span></h1>
 </div>
+<div class="header-controls">
 <div aria-label="Selector de idioma" class="lang-toggle" role="group">
 <button class="lang-btn active" id="btn-lang-es" onclick="setLanguage('es')" type="button">ES</button>
 <button class="lang-btn" id="btn-lang-en" onclick="setLanguage('en')" type="button">EN</button>
+</div>
+<div aria-label="Selector de tema" class="lang-toggle" role="group">
+<button class="lang-btn" id="btn-theme-auto" onclick="setTheme('auto')" type="button" title="Automático según el sistema">🌓 <span id="lbl-theme-auto">Auto</span></button>
+<button class="lang-btn" id="btn-theme-light" onclick="setTheme('light')" type="button" title="Modo claro">☀️ <span id="lbl-theme-light">Claro</span></button>
+<button class="lang-btn" id="btn-theme-dark" onclick="setTheme('dark')" type="button" title="Modo oscuro">🌙 <span id="lbl-theme-dark">Oscuro</span></button>
+</div>
 </div>
 </div>
 <p class="subtitle-banner" id="hdr-sub">
@@ -840,6 +981,7 @@
       suiteNotRun: "Suite no ejecutada en esta sesión.",
       gateReady: "Deterministic Verification Gate: READY",
       legal: "Marco: Decretos 2242/2015 y 358/2020 · Res. DIAN 042/2020 y 165/2023 · Demo sin transmisión real.",
+      themeAuto: "Auto", themeLight: "Claro", themeDark: "Oscuro",
       errExtractText: "Texto requerido",
       transYes: "TRANSMITIR: SÍ — PASS",
       transNo: "TRANSMITIR: NO — BLOQUEADO",
@@ -883,6 +1025,7 @@
       suiteNotRun: "Suite not executed in this session.",
       gateReady: "Deterministic Verification Gate: READY",
       legal: "Framework: Decrees 2242/2015 and 358/2020 · DIAN Res. 042/2020 and 165/2023 · Demo with no real transmit.",
+      themeAuto: "Auto", themeLight: "Light", themeDark: "Dark",
       errExtractText: "Text required",
       transYes: "TRANSMIT: YES — PASS",
       transNo: "TRANSMIT: NO — BLOCKED",
@@ -904,6 +1047,36 @@
       networkErrAlert: "Could not connect to server. Check backend at src/server.py."
     }
   };
+
+  /* Motor de tema (auto / claro / oscuro) */
+  function applyThemeMode(mode) {
+    if (mode === 'auto') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', mode);
+    }
+    document.getElementById('btn-theme-auto').classList.toggle('active', mode === 'auto');
+    document.getElementById('btn-theme-light').classList.toggle('active', mode === 'light');
+    document.getElementById('btn-theme-dark').classList.toggle('active', mode === 'dark');
+  }
+
+  function setTheme(mode) {
+    try { localStorage.setItem("kreo_theme", mode); } catch (e) {}
+    applyThemeMode(mode);
+  }
+
+  (function initTheme() {
+    var saved = null;
+    try { saved = localStorage.getItem("kreo_theme"); } catch (e) {}
+    applyThemeMode(saved || 'auto');
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+        var cur = null;
+        try { cur = localStorage.getItem("kreo_theme"); } catch (e) {}
+        if ((cur || 'auto') === 'auto') { applyThemeMode('auto'); }
+      });
+    }
+  })();
 
   function setLanguage(lang) {
     currentLang = lang;
@@ -930,6 +1103,9 @@
     document.getElementById('title-suite-summary').textContent = t.titleSuiteSummary;
     document.getElementById('lbl-gate-status').textContent = t.gateReady;
     document.getElementById('legal-note').textContent = t.legal;
+    document.getElementById('lbl-theme-auto').textContent = t.themeAuto;
+    document.getElementById('lbl-theme-light').textContent = t.themeLight;
+    document.getElementById('lbl-theme-dark').textContent = t.themeDark;
 
     // Reactive re-render of cached state
     if (state.extractedData) {

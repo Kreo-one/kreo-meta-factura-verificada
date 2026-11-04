@@ -49,7 +49,9 @@ class PromotedRootTest(unittest.TestCase):
                        "tool_call_id", "performance.now",
                        'rel="icon"', "<svg", "localStorage", "navigator.language",
                        "documentElement.lang", "Colombia",
-                       "legal-note", "2242"):
+                       "legal-note", "2242",
+                       "prefers-color-scheme", "data-theme", "kreo_theme",
+                       "btn-theme-dark", "lbl-theme-dark"):
             with self.subTest(marker=marker):
                 self.assertIn(marker, page, f"falta marca {marker}")
 

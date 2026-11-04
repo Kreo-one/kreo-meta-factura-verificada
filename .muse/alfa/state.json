@@ -55,6 +55,14 @@
   {
    "at": "2026-11-04",
    "note": "Contrato LLM ejecutado y verificado; pendiente guardar."
+  },
+  {
+   "at": "2026-11-04",
+   "note": "P12 guardado: 360c950 pusheado; deploy no aplica."
+  },
+  {
+   "at": "2026-11-04",
+   "note": "Fusion ejecutada y verificada en vivo; pendiente guardar."
   }
  ],
  "last_update": "2026-11-04",
@@ -117,8 +125,13 @@
   },
   {
    "id": "P12",
-   "status": "pending",
+   "status": "done",
    "task": "Guardar (commit+push) contrato LLM + deploy si se pide"
+  },
+  {
+   "id": "P12",
+   "status": "pending",
+   "task": "Guardar (commit+push) fusion tema+responsive y deploy"
   }
  ],
  "sessions": {
