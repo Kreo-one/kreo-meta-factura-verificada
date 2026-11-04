@@ -1,11 +1,11 @@
-"""Demo web Kreo Fiscal Shield: planner mock + gate determinista real.
+"""Kreo Fiscal Shield web demo: mock planner + real deterministic gate.
 
-Solo stdlib. Endpoints:
-  GET  /,/app   frontend auditado 7/7 (mismo origen que /api/...)
-  GET  /health   chequeo Coolify
-  POST /api/verify  {"amounts":[...],"dian_schema_ok":bool} -> veredicto (contrato estable)
-  POST /api/draft   {"text":str,"with_tools":bool} -> borrador + veredicto
-  POST /api/extract {"text":str} -> campos del negocio con tool_call_id + ahorro estimado
+Stdlib only. Endpoints:
+  GET  /,/app   audited frontend 7/7 (same origin as /api/...)
+  GET  /health   Coolify check
+  POST /api/verify  {"amounts":[...],"dian_schema_ok":bool} -> verdict (stable contract)
+  POST /api/draft   {"text":str,"with_tools":bool} -> draft + verdict
+  POST /api/extract {"text":str} -> business fields with tool_call_id + estimated savings
 """
 from __future__ import annotations
 
@@ -94,7 +94,7 @@ def meta_planner_fields(text: str) -> dict | None:
     except urllib.error.HTTPError as http_error:
         print(f"[planner] meta http={http_error.code}", flush=True)
         return None
-    except Exception as error:  # noqa: BLE001 - degradacion honesta ante cualquier fallo
+    except Exception as error:  # noqa: BLE001 - honest degradation on any failure
         print(f"[planner] meta fallo={type(error).__name__}", flush=True)
         return None
 

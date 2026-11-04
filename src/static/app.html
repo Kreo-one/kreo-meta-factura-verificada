@@ -904,6 +904,7 @@
 
   function setLanguage(lang) {
     currentLang = lang;
+    document.documentElement.lang = lang;
     try{ localStorage.setItem("kreo-lang", lang); }catch(e){}
     document.getElementById('btn-lang-es').classList.toggle('active', lang === 'es');
     document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');

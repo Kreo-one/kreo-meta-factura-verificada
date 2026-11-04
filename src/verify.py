@@ -1,4 +1,4 @@
-"""Gate determinista Kreo Fiscal Shield: bloquea numeros sin tool-result."""
+"""Kreo Fiscal Shield deterministic gate: blocks numbers without tool-result."""
 from __future__ import annotations
 
 

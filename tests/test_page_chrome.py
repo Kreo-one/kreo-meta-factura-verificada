@@ -1,7 +1,7 @@
-"""Chrome de la UI promovida a /: frontend auditado 7/7 mismo-origen.
+"""Chrome of the UI promoted to /: audited 7/7 same-origin frontend.
 
-GET / (y /app) sirve src/static/app.html: dos textareas con fetch reales,
-suite tras <details>, empty state honesto ES/EN, cero CDN.
+GET / (and /app) serves src/static/app.html: two textareas with real fetch,
+suite behind <details>, honest ES/EN empty state, zero CDN.
 """
 
 import sys
@@ -47,7 +47,8 @@ class PromotedRootTest(unittest.TestCase):
                        'id="inv"', 'id="verdict"', 'id="suite-details"',
                        "/api/extract", "/api/draft", "/api/verify",
                        "tool_call_id", "performance.now",
-                       'rel="icon"', "<svg", "localStorage", "navigator.language"):
+                       'rel="icon"', "<svg", "localStorage", "navigator.language",
+                       "documentElement.lang"):
             with self.subTest(marker=marker):
                 self.assertIn(marker, page, f"falta marca {marker}")
 

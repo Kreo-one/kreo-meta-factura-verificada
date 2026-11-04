@@ -1,15 +1,15 @@
-"""Regresion permanente del 401 de Meta (2026-11-04).
+"""Permanent regression for Meta 401 (2026-11-04).
 
-Causa raiz: el valor de META_SPARK_API_KEY guardado en Coolify traia comillas
-literales envolventes; el header salia como Bearer "<key>" y Meta respondia
-401 invalid_api_key solo desde los contenedores.
+Root cause: the META_SPARK_API_KEY value stored in Coolify carried literal
+wrapping quotes; the header went out as Bearer "<key>" and Meta answered
+401 invalid_api_key only from inside containers.
 
-Estos tests exigen que una clave con comillas envolventes (o con CR/LF)
-autentique igual que la clave limpia, sin usar ningun secreto real: el
-"Meta" del test de integracion es un servidor HTTP local falso que registra
-el header Authorization recibido. Counts-only: jamas se imprime un valor.
+These tests require a key with wrapping quotes (or CR/LF) to authenticate
+just like the clean key, without using any real secret: the "Meta" in the
+integration test is a fake local HTTP server that records the received
+Authorization header. Counts-only: no value is ever printed.
 
-Ejecutar: python3 -m unittest discover -s tests -v
+Run: python3 -m unittest discover -s tests -v
 """
 
 import json

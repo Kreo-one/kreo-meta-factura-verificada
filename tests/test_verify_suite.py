@@ -1,8 +1,8 @@
-"""Suite determinista de 20 casos + contrato HTTP (P4).
+"""Deterministic 20-case suite + HTTP contract (P4).
 
-Promocion de /tmp/suite20.py a prueba mantenida: los mismos 20 jobs del
-informe (8 validos + 6 sin tool + 3 schema roto + 2 tipos invalidos +
-1 extract) contra el gate real y contra el servidor HTTP real.
+Promoted from /tmp/suite20.py to a maintained test: the same 20 jobs from
+the report (8 valid + 6 no-tool + 3 broken schema + 2 invalid types +
+1 extract) against the real gate and the real HTTP server.
 """
 
 import json

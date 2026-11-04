@@ -27,6 +27,14 @@
   {
    "at": "2026-11-04",
    "note": "Restauracion ejecutada y verificada en vivo; pendiente guardar."
+  },
+  {
+   "at": "2026-11-04",
+   "note": "Guardar+push+deploy: 225b033, deploy ddlaj9lsjt9poi4zcocixcrd finished, prod OK."
+  },
+  {
+   "at": "2026-11-04",
+   "note": "Pase EN 1-4 ejecutado, 17/17 OK, sin commit."
   }
  ],
  "last_update": "2026-11-04",
@@ -69,8 +77,13 @@
   },
   {
    "id": "P8",
-   "status": "pending",
+   "status": "done",
    "task": "Guardar (commit+push) restauracion favicon/SVG/i18n y pedir deploy"
+  },
+  {
+   "id": "P9",
+   "status": "pending",
+   "task": "Guardar (commit+push) pase EN jueces + deploy si se pide; item 5 (descripcion GitHub) lo hace el usuario"
   }
  ],
  "sessions": {

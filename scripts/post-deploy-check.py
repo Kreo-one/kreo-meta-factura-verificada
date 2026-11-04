@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Check counts-only de cierre de deploy — KreO Fiscal Shield.
+"""Counts-only deploy closure check — Kreo Fiscal Shield.
 
-Uso:
+Usage:
     python3 scripts/post-deploy-check.py [base_url] [--full]
 
-Sin --full corre 4 sondas (health, verify valido, verify bloqueado, extract
-con sello Muse Spark real). Con --full corre ademas la suite determinista
-de 20 casos contra la URL. Fail-closed: cualquier FAIL -> exit 1.
+Without --full it runs 4 probes (health, valid verify, blocked verify,
+extract with the real Muse Spark seal). With --full it also runs the
+deterministic 20-case suite against the URL. Fail-closed: any FAIL -> exit 1.
 
-Counts-only (doctrina kreo-token-ops): si META_SPARK_API_KEY esta en el
-entorno local solo se reportan longitudes y si la sanitizacion cambia el
-valor; jamas el valor, hashes ni fragmentos.
+Counts-only (kreo-token-ops doctrine): if META_SPARK_API_KEY is in the local
+environment only lengths are reported, plus whether sanitization changes the
+value; never the value, hashes or fragments.
 """
 
 import json
