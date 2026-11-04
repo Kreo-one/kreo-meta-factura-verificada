@@ -46,7 +46,8 @@ class PromotedRootTest(unittest.TestCase):
         for marker in ('id="txt-extract"', 'id="txt-draft"', 'id="chips"',
                        'id="inv"', 'id="verdict"', 'id="suite-details"',
                        "/api/extract", "/api/draft", "/api/verify",
-                       "tool_call_id", "performance.now"):
+                       "tool_call_id", "performance.now",
+                       'rel="icon"', "<svg", "localStorage", "navigator.language"):
             with self.subTest(marker=marker):
                 self.assertIn(marker, page, f"falta marca {marker}")
 
@@ -64,7 +65,8 @@ class PromotedRootTest(unittest.TestCase):
         low = page.lower()
         self.assertNotIn("tailwind", low, "nada de CDN Tailwind")
         self.assertNotIn("googleapis", low, "nada de Google Fonts")
-        self.assertNotIn("<link", low, "cero links externos")
+        self.assertEqual(low.count("<link"), 1, "un solo link: el favicon inline")
+        self.assertIn('rel="icon"', page, "el link unico es el favicon")
         self.assertIn("<script>", page, "el JS va inline")
 
 

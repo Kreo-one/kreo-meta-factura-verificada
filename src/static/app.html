@@ -3,6 +3,7 @@
 <html lang="es"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2l11 4v8c0 7-4.5 12-11 16C9.5 26 5 21 5 14V6z' fill='%23059669'/%3E%3Cpath d='M11 15l4 4 7-8' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <title>Kreo Fiscal Shield — el agente propone, el verificador decide</title>
 <style>
     :root {
@@ -677,7 +678,7 @@
 <header>
 <div class="header-top">
 <div class="brand-group">
-<div class="shield-badge">✓</div>
+<div class="shield-badge"><svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2l11 4v8c0 7-4.5 12-11 16C9.5 26 5 21 5 14V6z" fill="#059669"/><path d="M11 15l4 4 7-8" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
 <h1>Kreo Fiscal Shield <span id="hdr-tagline">— el agente propone, el verificador decide</span></h1>
 </div>
 <div aria-label="Selector de idioma" class="lang-toggle" role="group">
@@ -903,6 +904,7 @@
 
   function setLanguage(lang) {
     currentLang = lang;
+    try{ localStorage.setItem("kreo-lang", lang); }catch(e){}
     document.getElementById('btn-lang-es').classList.toggle('active', lang === 'es');
     document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
     
@@ -1369,5 +1371,7 @@
     document.getElementById('lbl-suite-status').textContent = summaryText;
     document.getElementById('suite-p95').textContent = `${p95Val} ms`;
   }
+
+  try{ const saved = localStorage.getItem("kreo-lang"); setLanguage(saved || (((navigator.language || "es").toLowerCase().indexOf("en") === 0) ? "en" : "es")); }catch(e){ setLanguage("es"); }
 </script>
 </body></html>
