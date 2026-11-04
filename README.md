@@ -8,7 +8,7 @@
 
 **▶ Try the live demo: [https://factura.kreo.lat](https://factura.kreo.lat)** — type your company, generate an invoice, run the 20-case suite in your browser.
 
-This public repo is the **verifiable, deployable module of the Kreo.One agentic ERP SaaS**: a conversational wizard (Muse Spark) that proposes, deterministic tools that compute, and a verifier that decides before transmitting. The ERP core (`kreo-one-skeleton`, PRIVATE GitHub) is not exposed here; this is its living public proof. Built for **Colombia**: DIAN electronic invoicing (19% VAT, COP cents, pre-transmit validation).
+This public repo is the **verifiable, deployable module of the Kreo.One agentic ERP SaaS**: a conversational wizard (Muse Spark) that proposes, deterministic tools that compute, and a verifier that decides before transmitting. The ERP core (`kreo-one-skeleton`, PRIVATE GitHub) is not exposed here; this is its living public proof. Built for **Colombia**: DIAN electronic invoicing (19% VAT, COP cents, pre-transmit validation). A module of the [Kreo.One](https://kreo.one) ecosystem — the all-in-one ERP for Colombian SMEs.
 
 ```mermaid
 flowchart LR
@@ -91,7 +91,7 @@ MIT — this slice only. The kreo.one core stays private.
 
 # Kreo.One — ERP SaaS agéntico (módulo verificable: Kreo Fiscal Shield)
 
-Este repo público es el **módulo verificable y desplegable del ERP SaaS agéntico Kreo.One**: un wizard conversacional (Muse Spark) que propone, herramientas deterministas que calculan, y un verifier que decide antes de transmitir. El core del ERP (`kreo-one-skeleton`, GitHub PRIVATE) no se expone aquí; esto es su prueba pública viva. Hecho para **Colombia**: factura electrónica DIAN (IVA 19%, centavos COP, validación previa a transmitir).
+Este repo público es el **módulo verificable y desplegable del ERP SaaS agéntico Kreo.One**: un wizard conversacional (Muse Spark) que propone, herramientas deterministas que calculan, y un verifier que decide antes de transmitir. El core del ERP (`kreo-one-skeleton`, GitHub PRIVATE) no se expone aquí; esto es su prueba pública viva. Hecho para **Colombia**: factura electrónica DIAN (IVA 19%, centavos COP, validación previa a transmitir). Módulo del ecosistema [Kreo.One](https://kreo.one) — el ERP todo-en-uno para pymes colombianas.
 
 ## Qué demuestra
 

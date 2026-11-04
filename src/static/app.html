@@ -671,6 +671,16 @@
       background: var(--color-emerald-500);
     }
 
+    footer.telemetry-bar a {
+      color: var(--color-emerald-700);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    footer.telemetry-bar a:hover {
+      text-decoration: underline;
+    }
+
     /* Tema oscuro: overrides de paleta (manual) */
     [data-theme="dark"] {
       --color-slate-50: #0f172a;
@@ -938,6 +948,9 @@
 <div class="telemetry-item">
 <span id="lbl-p95">p95 sesión:</span> <span class="kpi" id="kpi-p95">—</span>
 </div>
+<div class="telemetry-item">
+<a id="lnk-kreo" href="https://kreo.one" target="_blank" rel="noopener"><span id="lbl-powered">Con tecnología Kreo.One</span></a>
+</div>
 </div>
 <div class="telemetry-item">
 <span class="status-online"><span class="status-dot"></span> <span id="lbl-gate-status">Deterministic Verification Gate: READY</span></span>
@@ -981,7 +994,7 @@
       suiteNotRun: "Suite no ejecutada en esta sesión.",
       gateReady: "Deterministic Verification Gate: READY",
       legal: "Marco: Decretos 2242/2015 y 358/2020 · Res. DIAN 042/2020 y 165/2023 · Demo sin transmisión real.",
-      themeAuto: "Auto", themeLight: "Claro", themeDark: "Oscuro",
+      themeAuto: "Auto", themeLight: "Claro", themeDark: "Oscuro", poweredBy: "Con tecnología Kreo.One",
       errExtractText: "Texto requerido",
       transYes: "TRANSMITIR: SÍ — PASS",
       transNo: "TRANSMITIR: NO — BLOQUEADO",
@@ -1025,7 +1038,7 @@
       suiteNotRun: "Suite not executed in this session.",
       gateReady: "Deterministic Verification Gate: READY",
       legal: "Framework: Decrees 2242/2015 and 358/2020 · DIAN Res. 042/2020 and 165/2023 · Demo with no real transmit.",
-      themeAuto: "Auto", themeLight: "Light", themeDark: "Dark",
+      themeAuto: "Auto", themeLight: "Light", themeDark: "Dark", poweredBy: "Powered by Kreo.One",
       errExtractText: "Text required",
       transYes: "TRANSMIT: YES — PASS",
       transNo: "TRANSMIT: NO — BLOCKED",
@@ -1106,6 +1119,7 @@
     document.getElementById('lbl-theme-auto').textContent = t.themeAuto;
     document.getElementById('lbl-theme-light').textContent = t.themeLight;
     document.getElementById('lbl-theme-dark').textContent = t.themeDark;
+    document.getElementById('lbl-powered').textContent = t.poweredBy;
 
     // Reactive re-render of cached state
     if (state.extractedData) {

@@ -51,7 +51,8 @@ class PromotedRootTest(unittest.TestCase):
                        "documentElement.lang", "Colombia",
                        "legal-note", "2242",
                        "prefers-color-scheme", "data-theme", "kreo_theme",
-                       "btn-theme-dark", "lbl-theme-dark"):
+                       "btn-theme-dark", "lbl-theme-dark",
+                       "lbl-powered", "https://kreo.one"):
             with self.subTest(marker=marker):
                 self.assertIn(marker, page, f"falta marca {marker}")
 

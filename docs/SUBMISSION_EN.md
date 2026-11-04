@@ -1,7 +1,7 @@
 # Submission text — English (copy-paste source of truth)
 
 > **KreO.One — Fiscal Shield (Agentic Module for SME ERP)**
-> **Platform context:** Private ERP SaaS in production (Laravel + Filament, DDD/EDA architecture, PostgreSQL 16, deployed on Coolify/Docker).
+> **Platform context:** Private ERP SaaS in production (Laravel + Filament, DDD/EDA architecture, PostgreSQL 16, deployed on Coolify/Docker) — [kreo.one](https://kreo.one).
 > **Hackathon deliverable (this repo + live demo at [https://factura.kreo.lat](https://factura.kreo.lat)):**
 > Agentic invoicing microservice with zero numeric hallucinations, integrated with **Meta (Muse Spark 1.3)** models via OpenAI-compatible contract with native Tool Calling.
 > **Guardrail mechanism (Fiscal Shield):**

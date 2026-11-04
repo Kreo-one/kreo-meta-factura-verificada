@@ -1,7 +1,7 @@
 # Texto de submission — Cerebral Valley (fuente de verdad, copiar-pegar)
 
 > **KreO.One — Fiscal Shield (Módulo Agéntico para ERP PyME)**
-> **Contexto de Plataforma:** ERP SaaS privado en producción (Laravel + Filament, arquitectura DDD/EDA, PostgreSQL 16, desplegado en Coolify/Docker).
+> **Contexto de Plataforma:** ERP SaaS privado en producción (Laravel + Filament, arquitectura DDD/EDA, PostgreSQL 16, desplegado en Coolify/Docker) — [kreo.one](https://kreo.one).
 > **Entregable Hackathon (Este Repo + Demo en [https://factura.kreo.lat](https://factura.kreo.lat)):**
 > Microservicio agéntico de facturación sin alucinaciones numéricas integrado con modelos **Meta (Muse Spark 1.3)** mediante contrato OpenAI-compatible con Tool Calling nativo.
 > **Mecanismo de Guardrail (Fiscal Shield):**
