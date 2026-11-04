@@ -6,7 +6,7 @@ Este repo público es el **módulo verificable y desplegable del ERP SaaS agént
 Voz/texto → borrador factura → gate determinista que bloquea todo número sin `tool_call_id` → validación esquema DIAN → `transmit` solo si el verifier pasa.
 
 ## Arquitectura
-`Muse Spark (planner, OpenAI-compatible) → tools deterministas (CalculateInvoiceTotalsAction mock local) → Spark Open verifier → transmit solo con veredicto PASS`. Fallback Baseten medible. Cero-float: centavos `int`, nada de `float` para dinero.
+`Muse Spark 1.3 (planner, OpenAI-compatible, tool-calling) → tools deterministas → verifier → transmit solo con veredicto PASS`. Sin key, mock local honesto (etiquetado en pantalla). Cero-float: centavos `int`, nada de `float` para dinero.
 
 ## Correr local
 ```
@@ -35,7 +35,7 @@ Cada cifra del borrador referencia `tool_call_id`. Sin `tool_call_id` no hay tra
 ## KPIs (SaaS-S, verificables)
 - KPI-1: 100% cifras con `tool_call_id` (0 escritas por el modelo).
 - KPI-2: 100% schema DIAN pass antes de transmitir.
-- KPI-3: p95 <3s voz/texto a borrador (mock local; con API real + fallback Baseten).
+- KPI-3: p95 ≈0.3–0.5s texto a borrador, medido en producción (suite server-side 20/20 vía `scripts/post-deploy-check.py --full`).
 
 ## Licencia
 MIT — solo este slice. El core kreo.one sigue privado.

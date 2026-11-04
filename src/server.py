@@ -44,7 +44,7 @@ button{padding:.55rem 1rem;margin:.3rem .2rem;font-size:.95rem;cursor:pointer}
 </style>
 </head><body>
 <h1>Kreo Fiscal Shield — el agente propone, el verificador decide</h1>
-<p class="mut">Wizard del ERP SaaS agentico Kreo.One (planner mock local; con la key de Meta usa Muse Spark — el gate no cambia).
+<p class="mut">Wizard del ERP SaaS agentico Kreo.One (planner Muse Spark en vivo; sin key, mock local honesto — el gate no cambia).
 Cada cifra lleva su <code>tool_call_id</code>: sin trazabilidad, no hay transmit.</p>
 <div class="grid">
  <div class="card">
@@ -401,7 +401,7 @@ class Handler(BaseHTTPRequestHandler):
 def main() -> None:
     port = int(os.getenv("PORT", "8080"))
     server = ThreadingHTTPServer(("0.0.0.0", port), Handler)
-    print(f"fiscal-shield demo en puerto {port} (mock local)")
+    print(f"fiscal-shield demo en puerto {port} (Muse Spark con key, mock sin key)")
     server.serve_forever()
 
 
