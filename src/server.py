@@ -180,12 +180,22 @@ def meta_planner_fields(text: str) -> dict | None:
     """Planner Muse Spark (Meta, cloud): tool-calling real con trazabilidad de la llamada.
 
     Contrato idéntico al del ERP (config/neuron.php meta_spark): endpoint y key
-    por entorno, modelo muse-spark. Devuelve None si no hay credenciales o si
+    por entorno, modelo muse-spark-1.3. Devuelve None si no hay credenciales o si
     la llamada falla (auth/timeout) — el caller degrada al extractor local.
     """
-    endpoint = os.getenv("META_SPARK_PLANNER_ENDPOINT", "")
-    api_key = os.getenv("META_SPARK_API_KEY", "")
-    model = os.getenv("META_SPARK_PLANNER_MODEL", "muse-spark")
+    endpoint = os.getenv("META_SPARK_PLANNER_ENDPOINT", "").strip()
+    # Sanitizacion estricta: Coolify/Docker pueden inyectar \n, \r o comillas
+    # alrededor del valor; un header con esos bytes es rechazado con 401.
+    api_key = (
+        os.getenv("META_SPARK_API_KEY", "")
+        .replace("\r", "")
+        .replace("\n", "")
+        .strip()
+        .strip('"')
+        .strip("'")
+        .strip()
+    )
+    model = os.getenv("META_SPARK_PLANNER_MODEL", "muse-spark-1.3").strip()
     if not endpoint or not api_key:
         return None
 
@@ -194,6 +204,7 @@ def meta_planner_fields(text: str) -> dict | None:
 
     payload = {
         "model": model,
+        "reasoning_effort": "low",
         "messages": [
             {"role": "system", "content": "Extrae los datos del negocio con la herramienta. Nada de texto libre."},
             {"role": "user", "content": text},
@@ -203,7 +214,11 @@ def meta_planner_fields(text: str) -> dict | None:
     request = urllib.request.Request(
         endpoint,
         data=json.dumps(payload).encode("utf-8"),
-        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "User-Agent": "KreOFiscalShield/1.0 (Linux; x86_64) Mozilla/5.0",
+        },
         method="POST",
     )
     try:
