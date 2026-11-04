@@ -35,6 +35,10 @@
   {
    "at": "2026-11-04",
    "note": "Pase EN 1-4 ejecutado, 17/17 OK, sin commit."
+  },
+  {
+   "at": "2026-11-04",
+   "note": "EN deployado: 7902fd1, deploy 3unzgqxas67qapzhfx8htwi1 finished, prod OK."
   }
  ],
  "last_update": "2026-11-04",
@@ -82,7 +86,7 @@
   },
   {
    "id": "P9",
-   "status": "pending",
+   "status": "done",
    "task": "Guardar (commit+push) pase EN jueces + deploy si se pide; item 5 (descripcion GitHub) lo hace el usuario"
   }
  ],

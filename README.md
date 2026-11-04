@@ -1,8 +1,23 @@
 # Kreo.One — Agentic ERP SaaS (verifiable module: Kreo Fiscal Shield)
 
+![Python 3.12](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white)
+![stdlib only](https://img.shields.io/badge/deps-zero%20stdlib-lightgrey)
+![License MIT](https://img.shields.io/badge/license-MIT-green)
+![Muse Spark 1.3](https://img.shields.io/badge/planner-Muse%20Spark%201.3-orange)
+[![Live demo](https://img.shields.io/badge/demo-live-brightgreen?logo=googlechrome&logoColor=white)](https://factura.kreo.lat)
+
+**▶ Try the live demo: [https://factura.kreo.lat](https://factura.kreo.lat)** — type your company, generate an invoice, run the 20-case suite in your browser.
+
 This public repo is the **verifiable, deployable module of the Kreo.One agentic ERP SaaS**: a conversational wizard (Muse Spark) that proposes, deterministic tools that compute, and a verifier that decides before transmitting. The ERP core (`kreo-one-skeleton`, PRIVATE GitHub) is not exposed here; this is its living public proof.
 
-Live demo: [https://factura.kreo.lat](https://factura.kreo.lat) (also serves `/app`, same frontend, same origin as the API).
+```mermaid
+flowchart LR
+    U["Free text"] --> P["Muse Spark planner<br/>(tool-calling)"]
+    P --> T["Deterministic tools<br/>(int cents, 19% VAT)"]
+    T --> V{"Verifier gate:<br/>every figure with<br/>tool_call_id + DIAN schema?"}
+    V -->|"PASS"| TX["TRANSMIT: YES"]
+    V -->|"blocked"| B["TRANSMIT: NO"]
+```
 
 ## What it demonstrates
 
