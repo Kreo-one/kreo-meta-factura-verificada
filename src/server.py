@@ -176,6 +176,16 @@ EXTRACT_TOOL = {
 }
 
 
+def sanitize_api_key(raw: str) -> str:
+    """Clave lista para el header Authorization.
+
+    Coolify/Docker pueden guardar el valor con comillas literales envolventes
+    o con CR/LF; un header con esos bytes es rechazado con 401 (regresion
+    fijada en tests/test_planner_auth.py).
+    """
+    return raw.replace("\r", "").replace("\n", "").strip().strip('"').strip("'").strip()
+
+
 def meta_planner_fields(text: str) -> dict | None:
     """Planner Muse Spark (Meta, cloud): tool-calling real con trazabilidad de la llamada.
 
@@ -184,17 +194,7 @@ def meta_planner_fields(text: str) -> dict | None:
     la llamada falla (auth/timeout) — el caller degrada al extractor local.
     """
     endpoint = os.getenv("META_SPARK_PLANNER_ENDPOINT", "").strip()
-    # Sanitizacion estricta: Coolify/Docker pueden inyectar \n, \r o comillas
-    # alrededor del valor; un header con esos bytes es rechazado con 401.
-    api_key = (
-        os.getenv("META_SPARK_API_KEY", "")
-        .replace("\r", "")
-        .replace("\n", "")
-        .strip()
-        .strip('"')
-        .strip("'")
-        .strip()
-    )
+    api_key = sanitize_api_key(os.getenv("META_SPARK_API_KEY", ""))
     model = os.getenv("META_SPARK_PLANNER_MODEL", "muse-spark-1.3").strip()
     if not endpoint or not api_key:
         return None

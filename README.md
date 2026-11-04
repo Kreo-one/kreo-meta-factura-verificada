@@ -20,6 +20,15 @@ PORT=8080 python src/server.py  # web demo: / (pagina), /health, POST /api/verif
 `Dockerfile` stdlib-only. App publica desde este repo, build-pack `dockerfile`,
 puerto 8080, health-check `/health`, dominio `https://factura.kreo.lat`.
 
+## Tests y cierre de deploy
+```
+python3 -m unittest discover -s tests   # regresion 401: clave con comillas envolventes igual autentica
+python3 scripts/post-deploy-check.py https://factura.kreo.lat --full   # cierre counts-only, fail-closed (exit 1 si algo falla)
+```
+`post-deploy-check.py` verifica health, transmit/bloqueo del verificador y que
+el extract lleve el sello real de Muse Spark (sin sello = deploy no cerrado).
+Si `META_SPARK_API_KEY` esta en su entorno solo reporta longitudes, jamas el valor.
+
 ## Trazabilidad
 Cada cifra del borrador referencia `tool_call_id`. Sin `tool_call_id` no hay transmit. Ver `src/verify.py`.
 
