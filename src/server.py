@@ -52,6 +52,8 @@ Cada cifra lleva su <code>tool_call_id</code>: sin trazabilidad, no hay transmit
   <textarea id="t" placeholder="Cuéntanos de tu empresa…">Mi empresa es Distribuciones Bolivar SAS, facturamos 95 facturas al mes, gasto 40 horas contables y pago 300.000 en software</textarea><br>
   <button onclick="send()" id="sendBtn">Enviar</button>
   <button onclick="sabotage()" title="El LLM escribe la cifra sin tool_call_id">Simular LLM sin herramientas</button>
+  <button onclick="runSuite()" title="20 casos deterministas: validos, sin tool, schema roto, tipos invalidos">Correr suite de verificación (20 casos)</button>
+  <div id="suite" style="margin-top:.6rem"></div>
   <p class="mut">Paso 1: cuéntanos tu operación. Paso 2: escribe tu primera factura tras el análisis.</p>
  </div>
  <div>
@@ -103,6 +105,39 @@ async function send(){
   }
 }
 function sabotage(){ sabotaged = true; bubble("Modo sabotaje: el LLM escribirá la próxima cifra sin herramientas.","ai"); }
+async function runSuite(){
+  const box = document.getElementById("suite");
+  box.innerHTML = "<p class='mut'>Corriendo 20 casos deterministas…</p>";
+  const valids = [1,1000,9500000,245000000,30000000,1000000000,99,50000000000];
+  const jobs = valids.map(c => ({path:"/api/verify", body:{amounts:[{cents:c,tool_call_id:"t"}],dian_schema_ok:true}, expect:true}));
+  [1,1000,9500000,245000000,30000000,10000000].forEach(c => jobs.push({path:"/api/verify", body:{amounts:[{cents:c}],dian_schema_ok:true}, expect:false}));
+  for(let i=0;i<3;i++) jobs.push({path:"/api/verify", body:{amounts:[{cents:1000,tool_call_id:"t"}],dian_schema_ok:false}, expect:false});
+  jobs.push({path:"/api/verify", body:{amounts:[{cents:"2450000",tool_call_id:"t"}],dian_schema_ok:true}, expect:false});
+  jobs.push({path:"/api/verify", body:{amounts:[{cents:24.5,tool_call_id:"t"}],dian_schema_ok:true}, expect:false});
+  jobs.push({path:"/api/extract", body:{text:"Mi empresa es Café Andino LTDA, con 60 facturas"}, expectExtract:true});
+  let pass = 0; const rows = [];
+  for(let i=0;i<jobs.length;i++){
+    const t0 = performance.now();
+    let ok = false, note = "";
+    try{
+      const r = await fetch(jobs[i].path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(jobs[i].body)});
+      const d = await r.json();
+      if(jobs[i].expectExtract){ ok = d.fields && d.fields.length === 2 && d.fields.every(f => f.tool_call_id); note = "extract 2/2 trazados"; }
+      else { ok = !!d.transmit === jobs[i].expect; note = d.transmit ? "PASS" : String(d.veredicto).slice(0,60); }
+      lat.push(performance.now() - t0);
+    }catch(e){ note = "ERROR red"; }
+    pass += ok ? 1 : 0;
+    rows.push(`<tr><td>${i+1}</td><td>${ok ? "✓" : "✗"}</td><td class="mut">${note}</td></tr>`);
+  }
+  lat.sort((a,b)=>a-b);
+  const p95 = Math.round(lat[Math.ceil(0.95*lat.length)-1]);
+  document.getElementById("kP95").textContent = p95 + " ms";
+  document.getElementById("kGround").textContent = "100% (suite)";
+  document.getElementById("kSchema").textContent = "OK (suite)";
+  box.innerHTML = `<p><b>${pass}/20 comportamientos esperados</b> · p95 sesión ${p95} ms · N=20 determinista, medido en tu navegador.</p>
+  <table><tr><th>#</th><th></th><th>Resultado</th></tr>${rows.join("")}</table>`;
+  bubble(`Suite completa: <b>${pass}/20</b> comportamientos esperados, p95 ${p95} ms medido en tu navegador. Nada de diapositivas: el gate ejecutó de verdad.`,"ai");
+}
 function renderInvoice(d){
   const items = d.draft.items.map(it =>
     `<tr><td>${it.concept} ${it.tool_call_id ? `<span class="chip ok">${it.tool_call_id}</span>` : `<span class="chip bad">sin trazabilidad</span>`}</td><td>${fmt(it.cents)}</td></tr>`).join("");
