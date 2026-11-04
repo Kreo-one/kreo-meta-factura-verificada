@@ -209,7 +209,11 @@ def meta_planner_fields(text: str) -> dict | None:
     try:
         with urllib.request.urlopen(request, timeout=8) as response:
             body = json.loads(response.read().decode("utf-8"))
-    except Exception:
+    except urllib.error.HTTPError as http_error:
+        print(f"[planner] meta http={http_error.code}", flush=True)
+        return None
+    except Exception as error:  # noqa: BLE001 - degradacion honesta ante cualquier fallo
+        print(f"[planner] meta fallo={type(error).__name__}", flush=True)
         return None
 
     choices = body.get("choices") or []
